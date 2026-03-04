@@ -32,6 +32,9 @@ jobs:
 
       - name: CI
         run: npm ci
+
+      - name: tailwindcss Build
+        run: npx tailwindcss-cli@latest build ./src/index.css -o ./dist/index.css
         
       - name: Build
         run: npm run build
