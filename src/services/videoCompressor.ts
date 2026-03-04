@@ -61,7 +61,13 @@ export async function compressVideo(
 
   const data = await ffmpeg!.readFile(outputName);
 
-  return new File([data], `compressed_${file.name}`, {
-    type: "video/mp4",
-  });
+  // 🔥 ArrayBufferに変換して安全にする
+  const buffer = (data as Uint8Array).buffer;
+
+  return new File(
+    [buffer],
+　　  `compressed_${file.name}`,
+    { type: "video/mp4" }
+　　);
+
 }
