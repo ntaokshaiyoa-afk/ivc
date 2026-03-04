@@ -29,9 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: tailwindcss Build
-        run: npx tailwindcss-cli@latest build ./tailwind.css -o ./src/index.css
         
       - name: CI
         run: npm ci
