@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import { compressImage } from "./services/imageCompressor";
 import JSZip from "jszip";
 
@@ -17,6 +17,16 @@ function App() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [quality, setQuality] = useState(0.7);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+useEffect(() => {
+  if (darkMode) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}, [darkMode]);
+
 
   const handleFiles = (selected: FileList | null) => {
     if (!selected) return;
@@ -155,16 +165,26 @@ function App() {
   const isVideo = (file: File) =>
     file.type.startsWith("video/");
 
-  return (
-  <div className="min-h-screen bg-gray-100">
+return (
+  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
     <div className="max-w-7xl mx-auto px-8 py-10">
 
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">
-        Image & Video Compressor
-      </h1>
+      {/* ヘッダー */}
+      <div className="flex justify-between items-center mb-10">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+          Image & Video Compressor
+        </h1>
 
-      {/* コントロールパネル */}
-      <div className="bg-white p-8 rounded-2xl shadow-lg mb-10">
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="px-4 py-2 rounded-xl bg-gray-800 text-white dark:bg-yellow-400 dark:text-black font-semibold"
+        >
+          {darkMode ? "☀ Light" : "🌙 Dark"}
+        </button>
+      </div>
+
+      {/* コントロール */}
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-10 transition-colors">
         <div className="grid md:grid-cols-3 gap-6 items-end">
 
           <div className="md:col-span-2">
@@ -177,13 +197,13 @@ function App() {
                 file:mr-4 file:py-3 file:px-6
                 file:rounded-xl file:border-0
                 file:font-semibold
-                file:bg-blue-600 file:text-black file:dark:text-white
+                file:bg-blue-600 file:text-white
                 hover:file:bg-blue-700"
             />
           </div>
 
           <div>
-            <label className="block font-medium mb-2 text-black dark:text-white">
+            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
               品質: {(quality * 100).toFixed(0)}%
             </label>
             <input
@@ -224,13 +244,13 @@ function App() {
         {files.map((item) => (
           <div
             key={item.id}
-            className="bg-white p-8 rounded-2xl shadow-lg"
+            className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg transition-colors"
           >
-            <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
               {item.file.name}
             </h3>
 
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               {item.originalSize} →
               {item.compressedSize ?? "-"} bytes{" "}
               {calcReduction(
@@ -239,7 +259,7 @@ function App() {
               )}
             </p>
 
-            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-6">
+            <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
               <div
                 className="h-full bg-blue-500 transition-all"
                 style={{ width: `${item.progress}%` }}
