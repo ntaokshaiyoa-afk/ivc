@@ -219,7 +219,7 @@ const isVideo = (file: File) =>
           <div style={{ display: "flex", gap: 20 }}>
 
 {
-  item.file.type.startsWith("video/") ? (
+  isVideo(item.file) ? (
     <video
       src={item.previewUrl}
       controls
@@ -230,7 +230,7 @@ const isVideo = (file: File) =>
   )
 }
 {item.compressedUrl && (
-  item.file.type.startsWith("video/") ? (
+  isVideo(item.file) ? (
     <video
       src={item.compressedUrl}
       controls
