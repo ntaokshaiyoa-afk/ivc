@@ -1,4 +1,4 @@
-import { useState, useEffect  } from "react";
+import { useState, useEffect, useRef } from "react";
 import { compressImage } from "./services/imageCompressor";
 import JSZip from "jszip";
 
@@ -156,6 +156,26 @@ useEffect(() => {
     return `-${rate.toFixed(1)}%`;
   };
 
+  const formatSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024)
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+};
+  const totalOriginal = files.reduce(
+  (sum, f) => sum + f.originalSize,
+  0
+);
+
+const totalCompressed = files.reduce(
+  (sum, f) => sum + (f.compressedSize ?? 0),
+  0
+);
+
+const totalSaved = totalOriginal - totalCompressed;
+
   const downloadZip = async () => {
     const zip = new JSZip();
 
@@ -261,6 +281,14 @@ return (
             ZIPダウンロード
           </button>
         </div>
+        <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+  総サイズ：
+  {formatSize(totalOriginal)} →
+  {formatSize(totalCompressed)}　
+  <span className="font-semibold text-green-600">
+    -{formatSize(totalSaved)}
+  </span>
+</div>
       </div>
 
       {/* ファイル一覧 */}
@@ -275,13 +303,16 @@ return (
             </h3>
 
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {item.originalSize} →
-              {item.compressedSize ?? "-"} bytes{" "}
-              {calcReduction(
-                item.originalSize,
-                item.compressedSize
-              )}
-            </p>
+  {formatSize(item.originalSize)} →
+  {item.compressedSize
+    ? formatSize(item.compressedSize)
+    : "-"}{" "}
+  {item.compressedSize && (
+    <span className="text-green-600 font-semibold">
+      ({calcReduction(item.originalSize, item.compressedSize)})
+    </span>
+  )}
+</p>
 
             <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
               <div
@@ -290,34 +321,32 @@ return (
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {isVideo(item.file) ? (
-                <video
-                  src={item.previewUrl}
-                  controls
-                  className="w-full rounded-xl"
-                />
-              ) : (
-                <img
-                  src={item.previewUrl}
-                  className="w-full rounded-xl"
-                />
-              )}
-
-              {item.compressedUrl &&
-                (isVideo(item.file) ? (
-                  <video
-                    src={item.compressedUrl}
-                    controls
-                    className="w-full rounded-xl"
-                  />
-                ) : (
-                  <img
-                    src={item.compressedUrl}
-                    className="w-full rounded-xl"
-                  />
-                ))}
-            </div>
+            {item.compressedUrl ? (
+  isVideo(item.file) ? (
+    <VideoCompare
+      before={item.previewUrl}
+      after={item.compressedUrl}
+    />
+  ) : (
+    <ImageCompare
+      before={item.previewUrl}
+      after={item.compressedUrl}
+    />
+  )
+) : (
+  isVideo(item.file) ? (
+    <video
+      src={item.previewUrl}
+      controls
+      className="w-full rounded-xl"
+    />
+  ) : (
+    <img
+      src={item.previewUrl}
+      className="w-full rounded-xl"
+    />
+  )
+)}
           </div>
         ))}
       </div>
@@ -327,3 +356,99 @@ return (
 }
 
 export default App;
+
+
+function ImageCompare({
+  before,
+  after,
+}: {
+  before: string;
+  after: string;
+}) {
+  const [position, setPosition] = useState(50);
+
+  return (
+    <div className="relative w-full max-w-3xl aspect-video mx-auto overflow-hidden rounded-xl border">
+      <img
+        src={before}
+        className="absolute inset-0 w-full h-full object-contain"
+      />
+
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ width: `${position}%` }}
+      >
+        <img
+          src={after}
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={position}
+        onChange={(e) =>
+          setPosition(Number(e.target.value))
+        }
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3"
+      />
+    </div>
+  );
+}
+
+function VideoCompare({
+  before,
+  after,
+}: {
+  before: string;
+  after: string;
+}) {
+  const beforeRef = useRef<HTMLVideoElement>(null);
+  const afterRef = useRef<HTMLVideoElement>(null);
+
+  const sync = (source: "before" | "after") => {
+    const src =
+      source === "before"
+        ? beforeRef.current
+        : afterRef.current;
+    const target =
+      source === "before"
+        ? afterRef.current
+        : beforeRef.current;
+
+    if (!src || !target) return;
+
+    target.currentTime = src.currentTime;
+
+    if (!src.paused) {
+      target.play();
+    } else {
+      target.pause();
+    }
+  };
+
+  return (
+    <div className="grid md:grid-cols-2 gap-6">
+      <video
+        ref={beforeRef}
+        src={before}
+        controls
+        onPlay={() => sync("before")}
+        onPause={() => sync("before")}
+        onSeeked={() => sync("before")}
+        className="w-full rounded-xl"
+      />
+      <video
+        ref={afterRef}
+        src={after}
+        controls
+        onPlay={() => sync("after")}
+        onPause={() => sync("after")}
+        onSeeked={() => sync("after")}
+        className="w-full rounded-xl"
+      />
+    </div>
+  );
+}
