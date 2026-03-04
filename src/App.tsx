@@ -17,15 +17,39 @@ function App() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [quality, setQuality] = useState(0.7);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+  // 保存済み設定があれば優先
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark") return true;
+  if (saved === "light") return false;
+
+  // 無ければOS設定を使用
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+});
 
 useEffect(() => {
   if (darkMode) {
     document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
   } else {
     document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
   }
 }, [darkMode]);
+
+  useEffect(() => {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const listener = (e: MediaQueryListEvent) => {
+    const saved = localStorage.getItem("theme");
+    if (!saved) {
+      setDarkMode(e.matches);
+    }
+  };
+
+  media.addEventListener("change", listener);
+  return () => media.removeEventListener("change", listener);
+}, []);
 
 
   const handleFiles = (selected: FileList | null) => {
