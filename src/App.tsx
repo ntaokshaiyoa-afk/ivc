@@ -177,13 +177,13 @@ function App() {
                 file:mr-4 file:py-3 file:px-6
                 file:rounded-xl file:border-0
                 file:font-semibold
-                file:bg-blue-600 file:text-white
+                file:bg-blue-600 file:text-black file:dark:text-white
                 hover:file:bg-blue-700"
             />
           </div>
 
           <div>
-            <label className="block font-medium mb-2">
+            <label className="block font-medium mb-2 text-black dark:text-white">
               品質: {(quality * 100).toFixed(0)}%
             </label>
             <input
@@ -226,7 +226,7 @@ function App() {
             key={item.id}
             className="bg-white p-8 rounded-2xl shadow-lg"
           >
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
               {item.file.name}
             </h3>
 
