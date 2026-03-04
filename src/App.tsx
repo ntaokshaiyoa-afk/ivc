@@ -156,29 +156,31 @@ function App() {
     file.type.startsWith("video/");
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+  <div className="min-h-screen bg-gray-100">
+    <div className="max-w-7xl mx-auto px-8 py-10">
 
-        <h1 className="text-3xl font-bold text-gray-800">
-          Image & Video Compressor
-        </h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
+        Image & Video Compressor
+      </h1>
 
-        <div className="bg-white p-6 rounded-2xl shadow space-y-4">
+      {/* コントロールパネル */}
+      <div className="bg-white p-8 rounded-2xl shadow-lg mb-10">
+        <div className="grid md:grid-cols-3 gap-6 items-end">
 
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*"
-            onChange={(e) =>
-              handleFiles(e.target.files)
-            }
-            className="block w-full text-sm
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded-lg file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-blue-50 file:text-blue-700
-                       hover:file:bg-blue-100"
-          />
+          <div className="md:col-span-2">
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={(e) => handleFiles(e.target.files)}
+              className="block w-full text-sm
+                file:mr-4 file:py-3 file:px-6
+                file:rounded-xl file:border-0
+                file:font-semibold
+                file:bg-blue-600 file:text-white
+                hover:file:bg-blue-700"
+            />
+          </div>
 
           <div>
             <label className="block font-medium mb-2">
@@ -196,44 +198,40 @@ function App() {
               className="w-full"
             />
           </div>
-
-          <div className="flex gap-4">
-            <button
-              onClick={compressAll}
-              disabled={
-                isProcessing ||
-                files.length === 0
-              }
-              className="px-6 py-2 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
-            >
-              圧縮開始
-            </button>
-
-            <button
-              onClick={downloadZip}
-              disabled={
-                files.filter(
-                  (f) => f.compressedUrl
-                ).length === 0
-              }
-              className="px-6 py-2 rounded-xl bg-green-600 text-white font-semibold disabled:opacity-50"
-            >
-              一括ZIPダウンロード
-            </button>
-          </div>
         </div>
 
+        <div className="flex gap-6 mt-6">
+          <button
+            onClick={compressAll}
+            disabled={isProcessing || files.length === 0}
+            className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
+          >
+            圧縮開始
+          </button>
+
+          <button
+            onClick={downloadZip}
+            disabled={files.filter(f => f.compressedUrl).length === 0}
+            className="px-8 py-3 rounded-xl bg-green-600 text-white font-semibold disabled:opacity-50"
+          >
+            ZIPダウンロード
+          </button>
+        </div>
+      </div>
+
+      {/* ファイル一覧 */}
+      <div className="space-y-8">
         {files.map((item) => (
           <div
             key={item.id}
-            className="bg-white p-6 rounded-2xl shadow space-y-4"
+            className="bg-white p-8 rounded-2xl shadow-lg"
           >
-            <h3 className="font-semibold">
+            <h3 className="text-lg font-semibold mb-2">
               {item.file.name}
             </h3>
 
-            <p className="text-sm text-gray-600">
-              {item.originalSize} →{" "}
+            <p className="text-gray-600 mb-4">
+              {item.originalSize} →
               {item.compressedSize ?? "-"} bytes{" "}
               {calcReduction(
                 item.originalSize,
@@ -241,26 +239,24 @@ function App() {
               )}
             </p>
 
-            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-6">
               <div
                 className="h-full bg-blue-500 transition-all"
-                style={{
-                  width: `${item.progress}%`,
-                }}
+                style={{ width: `${item.progress}%` }}
               />
             </div>
 
-            <div className="flex flex-wrap gap-6">
+            <div className="grid md:grid-cols-2 gap-8">
               {isVideo(item.file) ? (
                 <video
                   src={item.previewUrl}
                   controls
-                  className="w-64 rounded-lg"
+                  className="w-full rounded-xl"
                 />
               ) : (
                 <img
                   src={item.previewUrl}
-                  className="w-48 rounded-lg"
+                  className="w-full rounded-xl"
                 />
               )}
 
@@ -269,12 +265,12 @@ function App() {
                   <video
                     src={item.compressedUrl}
                     controls
-                    className="w-64 rounded-lg"
+                    className="w-full rounded-xl"
                   />
                 ) : (
                   <img
                     src={item.compressedUrl}
-                    className="w-48 rounded-lg"
+                    className="w-full rounded-xl"
                   />
                 ))}
             </div>
@@ -282,7 +278,8 @@ function App() {
         ))}
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default App;
