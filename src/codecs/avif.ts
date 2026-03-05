@@ -1,15 +1,10 @@
-import { encode } from "@jsquash/avif"
+import { encode } from "@jsquash/avif";
 
-export async function encodeAvif(
-  imageData: ImageData,
-  quality: number
-) {
+export async function encodeAVIF(data: ImageData) {
 
-  const data = await encode(imageData, {
-    cqLevel: Math.round((1-quality) * 63)
-  })
+  const result = await encode(data, {
+    quality: 40
+  });
 
-  return new Blob([data], {
-    type: "image/avif"
-  })
+  return result;
 }
