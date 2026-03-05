@@ -1,9 +1,9 @@
-import { optimise } from "@jsquash/oxipng"
+import { encode } from "@jsquash/oxipng"
 
-export async function encodeOxiPNG(buffer: ArrayBuffer) {
+export async function encodeOxiPNG(imageData: ImageData) {
 
-  const result = await optimise(buffer, {
-    level: 3
+  const result = await encode(imageData, {
+    level: 2
   })
 
   return result
