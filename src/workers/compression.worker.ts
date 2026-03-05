@@ -4,7 +4,7 @@ import { encodeAVIF } from "../codecs/avif";
 
 self.onmessage = async (e) => {
 
-  const { file, format } = e.data;
+  const { file, quality, format } = e.data;
 
   const bitmap = await createImageBitmap(file);
 
@@ -27,7 +27,7 @@ self.onmessage = async (e) => {
   let result;
 
   if (format === "jpeg") {
-    result = await encodeJpeg(imageData);
+    result = await encodeJpeg(imageData, quality);
   }
 
   if (format === "png") {
@@ -35,7 +35,7 @@ self.onmessage = async (e) => {
   }
 
   if (format === "avif") {
-    result = await encodeAVIF(imageData);
+    result = await encodeAVIF(imageData, quality);
   }
 
   postMessage(result);
