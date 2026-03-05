@@ -1,4 +1,4 @@
-import { encode } from "@jsquash/mozjpeg"
+import { encode } from "@jsquash/jpeg"
 
 export async function encodeJpeg(imageData: ImageData) {
 
