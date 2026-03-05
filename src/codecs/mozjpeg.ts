@@ -1,13 +1,10 @@
-import { encode } from "@jsquash/jpeg"
+import { encode } from "@jsquash/mozjpeg"
 
-export async function encodeJpeg(
-  imageData: ImageData,
-  quality: number
-) {
+export async function encodeJpeg(imageData: ImageData) {
 
-  const data = await encode(imageData, {
-    quality: Math.round(quality * 100)
+  const result = await encode(imageData, {
+    quality: 75
   })
 
-  return new Blob([data], { type: "image/jpeg" })
+  return result
 }
