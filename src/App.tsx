@@ -381,7 +381,7 @@ function ImageCompare({
         src={after}
         className="absolute w-full h-full object-contain"
         style={{
-          clipPath: `inset(0 0 0 ${100 - position}%)`
+          clipPath: `inset(0 0 0 ${position}%)`
         }}
       />
 
