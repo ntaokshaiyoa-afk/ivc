@@ -27,7 +27,7 @@ self.onmessage = async (e) => {
   let result;
 
   if (format === "jpeg") {
-    result = await encodeJPEG(imageData);
+    result = await encodeJpeg(imageData);
   }
 
   if (format === "png") {
