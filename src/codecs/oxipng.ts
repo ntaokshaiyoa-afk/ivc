@@ -1,8 +1,7 @@
 import { encode } from "@jsquash/png"
 
 export async function encodeOxiPNG(
-  imageData: ImageData,
-  quality: number
+  imageData: ImageData
 ) {
 
   const result = await encode(imageData)
