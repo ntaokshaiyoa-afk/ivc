@@ -252,7 +252,7 @@ return (
             </label>
             <input
               type="range"
-              min="0.5"
+              min="0.1"
               max="1"
               step="0.05"
               value={quality}
@@ -376,7 +376,7 @@ function ImageCompare({
         className="absolute inset-0 w-full h-full object-contain"
       />
 
-      {/* After（クリップ） */}
+      {/* After */}
       <img
         src={after}
         className="absolute w-full h-full object-contain"
@@ -387,11 +387,17 @@ function ImageCompare({
 
       {/* 中央ライン */}
       <div
-        className="absolute top-0 bottom-0 w-0.5 bg-white shadow"
+        className="absolute top-0 bottom-0 w-0.5 bg-white shadow pointer-events-none"
         style={{ left: `${position}%` }}
       />
 
-      {/* スライダー */}
+      {/* 視覚ハンドル */}
+      <div
+        className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-2 border-gray-400 rounded-full shadow-lg pointer-events-none"
+        style={{ left: `calc(${position}% - 12px)` }}
+      />
+
+      {/* 当たり判定拡大エリア */}
       <input
         type="range"
         min="0"
@@ -401,11 +407,13 @@ function ImageCompare({
           setPosition(Number(e.target.value))
         }
         className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+        style={{
+          touchAction: "none",
+        }}
       />
     </div>
   );
 }
-
 function VideoCompare({
   before,
   after,
