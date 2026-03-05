@@ -1,4 +1,4 @@
-import { encodeMozJPEG } from "../codecs/mozjpeg";
+import { encodeJpeg } from "../codecs/mozjpeg";
 import { encodeOxiPNG } from "../codecs/oxipng";
 import { encodeAVIF } from "../codecs/avif";
 
@@ -27,7 +27,7 @@ self.onmessage = async (e) => {
   let result;
 
   if (format === "jpeg") {
-    result = await encodeMozJPEG(imageData);
+    result = await encodJPEG(imageData);
   }
 
   if (format === "png") {
