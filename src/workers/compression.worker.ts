@@ -1,19 +1,14 @@
-import { encodeJpeg } from "../codecs/mozjpeg"
-import { encodePng } from "../codecs/oxipng"
-import { encodeWebp } from "../codecs/webp"
-import { encodeAvif } from "../codecs/avif"
+import { encodeMozJPEG } from "../codecs/mozjpeg";
+import { encodeOxiPNG } from "../codecs/oxipng";
+import { encodeAVIF } from "../codecs/avif";
 
 self.onmessage = async (e) => {
 
-  const { file, quality, format } = e.data
+  const { file, format } = e.data;
 
-  const bitmap = await createImageBitmap(file)
+  const bitmap = await createImageBitmap(file);
 
-  const canvas = new OffscreenCanvas(
-    bitmap.width,
-    bitmap.height
-  )
-
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
@@ -25,29 +20,23 @@ self.onmessage = async (e) => {
   const imageData = ctx.getImageData(
     0,
     0,
-    canvas.width,
-    canvas.height
-  )
+    bitmap.width,
+    bitmap.height
+  );
 
-  let blob
+  let result;
 
-  switch(format){
-
-    case "png":
-      blob = await encodePng(imageData)
-      break
-
-    case "webp":
-      blob = await encodeWebp(imageData,quality)
-      break
-
-    case "avif":
-      blob = await encodeAvif(imageData,quality)
-      break
-
-    default:
-      blob = await encodeJpeg(imageData,quality)
+  if (format === "jpeg") {
+    result = await encodeMozJPEG(imageData);
   }
 
-  self.postMessage(blob)
-}
+  if (format === "png") {
+    result = await encodeOxiPNG(imageData);
+  }
+
+  if (format === "avif") {
+    result = await encodeAVIF(imageData);
+  }
+
+  postMessage(result);
+};
