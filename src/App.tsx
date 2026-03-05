@@ -368,22 +368,30 @@ function ImageCompare({
   const [position, setPosition] = useState(50);
 
   return (
-    <div className="relative w-full max-w-3xl aspect-video mx-auto overflow-hidden rounded-xl border">
+    <div className="relative w-full max-w-4xl aspect-video mx-auto overflow-hidden rounded-xl border select-none">
+
+      {/* Before */}
       <img
         src={before}
         className="absolute inset-0 w-full h-full object-contain"
       />
 
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${position}%` }}
-      >
-        <img
-          src={after}
-          className="w-full h-full object-contain"
-        />
-      </div>
+      {/* After（クリップ） */}
+      <img
+        src={after}
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{
+          clipPath: `inset(0 ${100 - position}% 0 0)`
+        }}
+      />
 
+      {/* 中央ライン */}
+      <div
+        className="absolute top-0 bottom-0 w-0.5 bg-white shadow"
+        style={{ left: `${position}%` }}
+      />
+
+      {/* スライダー */}
       <input
         type="range"
         min="0"
@@ -392,7 +400,7 @@ function ImageCompare({
         onChange={(e) =>
           setPosition(Number(e.target.value))
         }
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
       />
     </div>
   );
