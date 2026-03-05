@@ -1,4 +1,4 @@
-import { encode } from "@jsquash/oxipng"
+import { encode } from "@jsquash/png"
 
 export async function encodeOxiPNG(imageData: ImageData) {
 
