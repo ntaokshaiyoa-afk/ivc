@@ -14,9 +14,13 @@ self.onmessage = async (e) => {
     bitmap.height
   )
 
-  const ctx = canvas.getContext("2d")
+  const ctx = canvas.getContext("2d");
 
-  ctx.drawImage(bitmap,0,0)
+  if (!ctx) {
+    throw new Error("Canvas context unavailable");
+  }
+
+  ctx.drawImage(bitmap, 0, 0);
 
   const imageData = ctx.getImageData(
     0,
