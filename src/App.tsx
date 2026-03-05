@@ -379,9 +379,9 @@ function ImageCompare({
       {/* After（クリップ） */}
       <img
         src={after}
-        className="absolute inset-0 w-full h-full object-contain"
+        className="absolute w-full h-full object-contain"
         style={{
-          clipPath: `inset(0 ${100 - position}% 0 0)`
+          clipPath: `inset(0 0 0 ${100 - position}%)`
         }}
       />
 
