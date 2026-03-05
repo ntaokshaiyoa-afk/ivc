@@ -1,12 +1,9 @@
-import { encode } from "@jsquash/oxipng"
+import { oxipng } from "@jsquash/oxipng";
 
-export async function encodePng(
-  imageData: ImageData
-) {
+export async function encodeOxiPNG(data: ImageData) {
+  const result = await oxipng(data, {
+    level: 2
+  });
 
-  const data = await encode(imageData)
-
-  return new Blob([data], {
-    type: "image/png"
-  })
+  return result;
 }
