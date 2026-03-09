@@ -1,20 +1,23 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 permissions:
-  contents: read
   pages: write
   id-token: write
+  contents: read
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -25,25 +28,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
-        
-      - name: CI
         run: npm ci
 
-      - name: Format
-        run: npx prettier . --write
-
-      - name: Commit formatting
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add .
-          git diff --cached --quiet || git commit -m "auto format"
-          git push
-        
       - name: Build
         run: npm run build
 
@@ -53,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: ./dist
 
       - name: Deploy
         uses: actions/deploy-pages@v4
