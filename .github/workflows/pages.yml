@@ -1,8 +1,9 @@
-name: Build and Deploy Pages
+name: CI and Deploy
 
 on:
   push:
     branches: ["main"]
+  pull_request:
 
 permissions:
   contents: write
@@ -14,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Format (changed files only)
+      - name: Prettier (changed files only)
         run: |
           CHANGED=$(git diff --name-only HEAD~1 | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' || true)
           if [ -n "$CHANGED" ]; then
@@ -48,6 +49,7 @@ jobs:
           fi
 
       - name: Commit formatting
+        if: github.event_name == 'push'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
@@ -56,16 +58,34 @@ jobs:
           git diff --cached --quiet || git commit -m "auto format"
           git push
 
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript check
+        run: npm run typecheck
+
       - name: Build
         run: npm run build
 
+      - name: Bundle size check
+        run: |
+          SIZE=$(du -sk dist | cut -f1)
+          echo "Bundle size: ${SIZE}KB"
+          if [ "$SIZE" -gt 5000 ]; then
+            echo "Bundle too large!"
+            exit 1
+          fi
+
       - name: Setup Pages
+        if: github.event_name == 'push'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
       - name: Deploy
+        if: github.event_name == 'push'
         uses: actions/deploy-pages@v4
