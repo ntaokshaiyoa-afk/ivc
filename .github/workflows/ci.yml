@@ -23,6 +23,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        run: npm install
+        
+      - name: CI
         run: npm ci
 
       - name: Format
