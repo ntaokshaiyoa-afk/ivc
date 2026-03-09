@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -27,15 +29,23 @@ jobs:
           node-version: 22
           cache: npm
 
-      #// 依存パッケージ追加時のみ実行
-      #- name: Install packages
-      #  run: npm install
+      - name: Cache Vite
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.vite
+          key: vite-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            vite-${{ runner.os }}-
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Auto format
-        run: npm run format
+      - name: Format (changed files only)
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' || true)
+          if [ -n "$CHANGED" ]; then
+            npx prettier --write $CHANGED
+          fi
 
       - name: Commit formatting
         run: |
