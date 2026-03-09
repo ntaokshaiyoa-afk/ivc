@@ -24,11 +24,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
 
-      includeAssets: [
-        'favicon.ico',
-        'apple-touch-icon.png',
-        'masked-icon.svg',
-      ],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
 
       manifest: {
         name: 'IVC Image & Video Compressor',
@@ -63,9 +59,7 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
 
-        globPatterns: [
-          '**/*.{js,css,html,ico,png,svg,wasm}',
-        ],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
 
         runtimeCaching: [
           {
