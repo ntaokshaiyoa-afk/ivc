@@ -36,6 +36,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add .
+          git restore --staged .github/workflow
           git diff --cached --quiet || git commit -m "auto format"
           git push
 
