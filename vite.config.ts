@@ -1,16 +1,34 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import compression from 'vite-plugin-compression'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   base: '/ivc/',
+
   plugins: [
     react(),
+
+    // Brotli圧縮
+    compression({
+      algorithm: 'brotliCompress',
+    }),
+
+    // bundleサイズ確認
+    visualizer({
+      filename: 'bundle-analysis.html',
+      open: false,
+    }),
 
     VitePWA({
       registerType: 'autoUpdate',
 
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: [
+        'favicon.ico',
+        'apple-touch-icon.png',
+        'masked-icon.svg',
+      ],
 
       manifest: {
         name: 'IVC Image & Video Compressor',
@@ -45,7 +63,9 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
 
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,wasm}',
+        ],
 
         runtimeCaching: [
           {
@@ -63,15 +83,37 @@ export default defineConfig({
       },
     }),
   ],
+
   optimizeDeps: {
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
   },
+
   worker: {
     format: 'es',
   },
+
   build: {
+    target: 'es2020',
+
+    // ソースマップ削除
+    sourcemap: false,
+
+    // 高速minify
+    minify: 'esbuild',
+
+    chunkSizeWarningLimit: 2000,
+
     commonjsOptions: {
       transformMixedEsModules: true,
+    },
+
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          ffmpeg: ['@ffmpeg/ffmpeg'],
+        },
+      },
     },
   },
 })
