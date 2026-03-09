@@ -32,6 +32,17 @@ jobs:
         
       - name: CI
         run: npm ci
+
+      - name: Format
+        run: npx prettier . --write
+
+      - name: Commit formatting
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "auto format"
+          git push
         
       - name: Build
         run: npm run build
