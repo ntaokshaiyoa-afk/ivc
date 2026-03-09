@@ -51,3 +51,4 @@ This project uses the following open-source libraries:
 
 All files are processed locally in the browser.
 No files are uploaded to any server.
+```

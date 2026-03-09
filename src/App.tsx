@@ -1,138 +1,118 @@
-import { useState, useEffect, useRef } from "react";
-import { compressImage } from "./services/imageCompressor";
-import JSZip from "jszip";
+import { useState, useEffect, useRef } from 'react'
+import { compressImage } from './services/imageCompressor'
+import JSZip from 'jszip'
 
 type FileItem = {
-  id: string;
-  file: File;
-  previewUrl: string;
-  compressedUrl?: string;
-  originalSize: number;
-  compressedSize?: number;
-  status: "waiting" | "processing" | "done";
-  progress: number;
-};
+  id: string
+  file: File
+  previewUrl: string
+  compressedUrl?: string
+  originalSize: number
+  compressedSize?: number
+  status: 'waiting' | 'processing' | 'done'
+  progress: number
+}
 
 function App() {
-  const [files, setFiles] = useState<FileItem[]>([]);
-  const [quality, setQuality] = useState(0.7);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [files, setFiles] = useState<FileItem[]>([])
+  const [quality, setQuality] = useState(0.7)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-  // 保存済み設定があれば優先
-  const saved = localStorage.getItem("theme");
-  if (saved === "dark") return true;
-  if (saved === "light") return false;
+    // 保存済み設定があれば優先
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark') return true
+    if (saved === 'light') return false
 
-  // 無ければOS設定を使用
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-});
-
-useEffect(() => {
-  if (darkMode) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
-}, [darkMode]);
+    // 無ければOS設定を使用
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
 
   useEffect(() => {
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-  const listener = (e: MediaQueryListEvent) => {
-    const saved = localStorage.getItem("theme");
-    if (!saved) {
-      setDarkMode(e.matches);
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
     }
-  };
+  }, [darkMode])
 
-  media.addEventListener("change", listener);
-  return () => media.removeEventListener("change", listener);
-}, []);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
 
+    const listener = (e: MediaQueryListEvent) => {
+      const saved = localStorage.getItem('theme')
+      if (!saved) {
+        setDarkMode(e.matches)
+      }
+    }
+
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
 
   const handleFiles = (selected: FileList | null) => {
-    if (!selected) return;
+    if (!selected) return
 
     const list = Array.from(selected)
-      .filter(
-        (f) =>
-          f.type.startsWith("image/") ||
-          f.type.startsWith("video/")
-      )
+      .filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
       .map((f) => ({
         id: crypto.randomUUID(),
         file: f,
         previewUrl: URL.createObjectURL(f),
         originalSize: f.size,
-        status: "waiting" as const,
+        status: 'waiting' as const,
         progress: 0,
-      }));
+      }))
 
-    setFiles((prev) => [...prev, ...list]);
-  };
+    setFiles((prev) => [...prev, ...list])
+  }
 
   const compressAll = async () => {
-    setIsProcessing(true);
+    setIsProcessing(true)
 
-    const pendingFiles = files.filter(
-      (f) => f.status !== "done"
-    );
+    const pendingFiles = files.filter((f) => f.status !== 'done')
 
-    const concurrency = 2;
-    const queue = [...pendingFiles];
+    const concurrency = 2
+    const queue = [...pendingFiles]
 
     const workers = Array(concurrency)
       .fill(null)
       .map(async () => {
         while (queue.length > 0) {
-          const item = queue.shift();
-          if (!item) break;
+          const item = queue.shift()
+          if (!item) break
 
-          updateStatus(item.id, "processing", 0);
+          updateStatus(item.id, 'processing', 0)
 
-          if (item.file.type.startsWith("video/")) {
-            const { compressVideo } = await import(
-              "./services/videoCompressor"
-            );
+          if (item.file.type.startsWith('video/')) {
+            const { compressVideo } = await import('./services/videoCompressor')
 
-            const compressed = await compressVideo(
-              item.file,
-              (progress) =>
-                updateStatus(
-                  item.id,
-                  "processing",
-                  progress
-                )
-            );
+            const compressed = await compressVideo(item.file, (progress) =>
+              updateStatus(item.id, 'processing', progress),
+            )
 
-            updateResult(item.id, compressed);
+            updateResult(item.id, compressed)
           } else {
-            const compressed = await compressImage(
-              item.file,
-              quality
-            );
-            updateResult(item.id, compressed);
+            const compressed = await compressImage(item.file, quality)
+            updateResult(item.id, compressed)
           }
         }
-      });
+      })
 
-    await Promise.all(workers);
-    setIsProcessing(false);
-  };
+    await Promise.all(workers)
+    setIsProcessing(false)
+  }
 
   const updateStatus = (
     id: string,
-    status: FileItem["status"],
-    progress: number
+    status: FileItem['status'],
+    progress: number,
   ) => {
     setFiles((prev) =>
-      prev.map((f) =>
-        f.id === id ? { ...f, status, progress } : f
-      )
-    );
-  };
+      prev.map((f) => (f.id === id ? { ...f, status, progress } : f)),
+    )
+  }
 
   const updateResult = (id: string, file: File) => {
     setFiles((prev) =>
@@ -142,234 +122,202 @@ useEffect(() => {
               ...f,
               compressedUrl: URL.createObjectURL(file),
               compressedSize: file.size,
-              status: "done",
+              status: 'done',
               progress: 100,
             }
-          : f
-      )
-    );
-  };
+          : f,
+      ),
+    )
+  }
 
   const calcReduction = (orig: number, comp?: number) => {
-    if (!comp) return "";
-    const rate = ((orig - comp) / orig) * 100;
-    return `-${rate.toFixed(1)}%`;
-  };
+    if (!comp) return ''
+    const rate = ((orig - comp) / orig) * 100
+    return `-${rate.toFixed(1)}%`
+  }
 
   const formatSize = (bytes: number) => {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024)
-    return `${(bytes / 1024).toFixed(2)} KB`;
-  if (bytes < 1024 * 1024 * 1024)
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-};
-  const totalOriginal = files.reduce(
-  (sum, f) => sum + f.originalSize,
-  0
-);
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+    if (bytes < 1024 * 1024 * 1024)
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
+  }
+  const totalOriginal = files.reduce((sum, f) => sum + f.originalSize, 0)
 
-const totalCompressed = files.reduce(
-  (sum, f) => sum + (f.compressedSize ?? 0),
-  0
-);
+  const totalCompressed = files.reduce(
+    (sum, f) => sum + (f.compressedSize ?? 0),
+    0,
+  )
 
-const totalSaved = totalOriginal - totalCompressed;
+  const totalSaved = totalOriginal - totalCompressed
 
   const downloadZip = async () => {
-    const zip = new JSZip();
+    const zip = new JSZip()
 
-    const completedFiles = files.filter(
-      (f) => f.compressedUrl
-    );
+    const completedFiles = files.filter((f) => f.compressedUrl)
 
     for (const item of completedFiles) {
-      const response = await fetch(
-        item.compressedUrl!
-      );
-      const blob = await response.blob();
-      zip.file(
-        `compressed_${item.file.name}`,
-        blob
-      );
+      const response = await fetch(item.compressedUrl!)
+      const blob = await response.blob()
+      zip.file(`compressed_${item.file.name}`, blob)
     }
 
     const content = await zip.generateAsync({
-      type: "blob",
-    });
+      type: 'blob',
+    })
 
-    const url = URL.createObjectURL(content);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "compressed_files.zip";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+    const url = URL.createObjectURL(content)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'compressed_files.zip'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
-  const isVideo = (file: File) =>
-    file.type.startsWith("video/");
+  const isVideo = (file: File) => file.type.startsWith('video/')
 
-return (
-  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
-    <div className="max-w-7xl mx-auto px-8 py-10">
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+      <div className="max-w-7xl mx-auto px-8 py-10">
+        {/* ヘッダー */}
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+            Image & Video Compressor
+          </h1>
 
-      {/* ヘッダー */}
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-          Image & Video Compressor
-        </h1>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="px-4 py-2 rounded-xl bg-gray-800 text-white dark:bg-yellow-400 dark:text-black font-semibold"
+          >
+            {darkMode ? '☀ Light' : '🌙 Dark'}
+          </button>
+        </div>
 
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="px-4 py-2 rounded-xl bg-gray-800 text-white dark:bg-yellow-400 dark:text-black font-semibold"
-        >
-          {darkMode ? "☀ Light" : "🌙 Dark"}
-        </button>
-      </div>
-
-      {/* コントロール */}
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-10 transition-colors">
-        <div className="grid md:grid-cols-3 gap-6 items-end">
-
-          <div className="md:col-span-2">
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*"
-              onChange={(e) => handleFiles(e.target.files)}
-              className="block w-full text-sm
+        {/* コントロール */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-10 transition-colors">
+          <div className="grid md:grid-cols-3 gap-6 items-end">
+            <div className="md:col-span-2">
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={(e) => handleFiles(e.target.files)}
+                className="block w-full text-sm
                 file:mr-4 file:py-3 file:px-6
                 file:rounded-xl file:border-0
                 file:font-semibold
                 file:bg-blue-600 file:text-white
                 hover:file:bg-blue-700"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-              品質: {(quality * 100).toFixed(0)}%
-            </label>
-            <input
-              type="range"
-              min="0.1"
-              max="1"
-              step="0.05"
-              value={quality}
-              onChange={(e) =>
-                setQuality(Number(e.target.value))
-              }
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-6 mt-6">
-          <button
-            onClick={compressAll}
-            disabled={isProcessing || files.length === 0}
-            className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
-          >
-            圧縮開始
-          </button>
-
-          <button
-            onClick={downloadZip}
-            disabled={files.filter(f => f.compressedUrl).length === 0}
-            className="px-8 py-3 rounded-xl bg-green-600 text-white font-semibold disabled:opacity-50"
-          >
-            ZIPダウンロード
-          </button>
-        </div>
-        <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
-  総サイズ：
-  {formatSize(totalOriginal)} →
-  {formatSize(totalCompressed)}　
-  <span className="font-semibold text-green-600">
-    -{formatSize(totalSaved)}
-  </span>
-</div>
-      </div>
-
-      {/* ファイル一覧 */}
-      <div className="space-y-8">
-        {files.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg transition-colors"
-          >
-            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-              {item.file.name}
-            </h3>
-
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-  {formatSize(item.originalSize)} →
-  {item.compressedSize
-    ? formatSize(item.compressedSize)
-    : "-"}{" "}
-  {item.compressedSize && (
-    <span className="text-green-600 font-semibold">
-      ({calcReduction(item.originalSize, item.compressedSize)})
-    </span>
-  )}
-</p>
-
-            <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
-              <div
-                className="h-full bg-blue-500 transition-all"
-                style={{ width: `${item.progress}%` }}
               />
             </div>
 
-            {item.compressedUrl ? (
-  isVideo(item.file) ? (
-    <VideoCompare
-      before={item.previewUrl}
-      after={item.compressedUrl}
-    />
-  ) : (
-    <ImageCompare
-      before={item.previewUrl}
-      after={item.compressedUrl}
-    />
-  )
-) : (
-  isVideo(item.file) ? (
-    <video
-      src={item.previewUrl}
-      controls
-      className="w-full rounded-xl"
-    />
-  ) : (
-    <img
-      src={item.previewUrl}
-      className="w-full rounded-xl"
-    />
-  )
-)}
+            <div>
+              <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+                品質: {(quality * 100).toFixed(0)}%
+              </label>
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.05"
+                value={quality}
+                onChange={(e) => setQuality(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
           </div>
-        ))}
+
+          <div className="flex gap-6 mt-6">
+            <button
+              onClick={compressAll}
+              disabled={isProcessing || files.length === 0}
+              className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
+            >
+              圧縮開始
+            </button>
+
+            <button
+              onClick={downloadZip}
+              disabled={files.filter((f) => f.compressedUrl).length === 0}
+              className="px-8 py-3 rounded-xl bg-green-600 text-white font-semibold disabled:opacity-50"
+            >
+              ZIPダウンロード
+            </button>
+          </div>
+          <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+            総サイズ：
+            {formatSize(totalOriginal)} →{formatSize(totalCompressed)}　
+            <span className="font-semibold text-green-600">
+              -{formatSize(totalSaved)}
+            </span>
+          </div>
+        </div>
+
+        {/* ファイル一覧 */}
+        <div className="space-y-8">
+          {files.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg transition-colors"
+            >
+              <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                {item.file.name}
+              </h3>
+
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {formatSize(item.originalSize)} →
+                {item.compressedSize ? formatSize(item.compressedSize) : '-'}{' '}
+                {item.compressedSize && (
+                  <span className="text-green-600 font-semibold">
+                    ({calcReduction(item.originalSize, item.compressedSize)})
+                  </span>
+                )}
+              </p>
+
+              <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
+                <div
+                  className="h-full bg-blue-500 transition-all"
+                  style={{ width: `${item.progress}%` }}
+                />
+              </div>
+
+              {item.compressedUrl ? (
+                isVideo(item.file) ? (
+                  <VideoCompare
+                    before={item.previewUrl}
+                    after={item.compressedUrl}
+                  />
+                ) : (
+                  <ImageCompare
+                    before={item.previewUrl}
+                    after={item.compressedUrl}
+                  />
+                )
+              ) : isVideo(item.file) ? (
+                <video
+                  src={item.previewUrl}
+                  controls
+                  className="w-full rounded-xl"
+                />
+              ) : (
+                <img src={item.previewUrl} className="w-full rounded-xl" />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  )
 }
 
-export default App;
+export default App
 
-
-function ImageCompare({
-  before,
-  after,
-}: {
-  before: string;
-  after: string;
-}) {
-  const [position, setPosition] = useState(50);
+function ImageCompare({ before, after }: { before: string; after: string }) {
+  const [position, setPosition] = useState(50)
 
   return (
     <div className="relative w-full max-w-4xl aspect-video mx-auto overflow-hidden rounded-xl border select-none">
-
       {/* Before */}
       <img
         src={before}
@@ -381,7 +329,7 @@ function ImageCompare({
         src={after}
         className="absolute w-full h-full object-contain"
         style={{
-          clipPath: `inset(0 0 0 ${position}%)`
+          clipPath: `inset(0 0 0 ${position}%)`,
         }}
       />
 
@@ -403,47 +351,33 @@ function ImageCompare({
         min="0"
         max="100"
         value={position}
-        onChange={(e) =>
-          setPosition(Number(e.target.value))
-        }
+        onChange={(e) => setPosition(Number(e.target.value))}
         className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
         style={{
-          touchAction: "none",
+          touchAction: 'none',
         }}
       />
     </div>
-  );
+  )
 }
-function VideoCompare({
-  before,
-  after,
-}: {
-  before: string;
-  after: string;
-}) {
-  const beforeRef = useRef<HTMLVideoElement>(null);
-  const afterRef = useRef<HTMLVideoElement>(null);
+function VideoCompare({ before, after }: { before: string; after: string }) {
+  const beforeRef = useRef<HTMLVideoElement>(null)
+  const afterRef = useRef<HTMLVideoElement>(null)
 
-  const sync = (source: "before" | "after") => {
-    const src =
-      source === "before"
-        ? beforeRef.current
-        : afterRef.current;
-    const target =
-      source === "before"
-        ? afterRef.current
-        : beforeRef.current;
+  const sync = (source: 'before' | 'after') => {
+    const src = source === 'before' ? beforeRef.current : afterRef.current
+    const target = source === 'before' ? afterRef.current : beforeRef.current
 
-    if (!src || !target) return;
+    if (!src || !target) return
 
-    target.currentTime = src.currentTime;
+    target.currentTime = src.currentTime
 
     if (!src.paused) {
-      target.play();
+      target.play()
     } else {
-      target.pause();
+      target.pause()
     }
-  };
+  }
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
@@ -451,20 +385,20 @@ function VideoCompare({
         ref={beforeRef}
         src={before}
         controls
-        onPlay={() => sync("before")}
-        onPause={() => sync("before")}
-        onSeeked={() => sync("before")}
+        onPlay={() => sync('before')}
+        onPause={() => sync('before')}
+        onSeeked={() => sync('before')}
         className="w-full rounded-xl"
       />
       <video
         ref={afterRef}
         src={after}
         controls
-        onPlay={() => sync("after")}
-        onPause={() => sync("after")}
-        onSeeked={() => sync("after")}
+        onPlay={() => sync('after')}
+        onPause={() => sync('after')}
+        onSeeked={() => sync('after')}
         className="w-full rounded-xl"
       />
     </div>
-  );
+  )
 }

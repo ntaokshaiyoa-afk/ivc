@@ -1,1 +1,1 @@
-declare module "@squoosh/lib";
+declare module '@squoosh/lib'

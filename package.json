@@ -3,11 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-
   "engines": {
     "node": ">=20.19.0"
   },
-
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -16,7 +14,6 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
-
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
@@ -26,7 +23,6 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
-
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@jsquash/jpeg": "^1.6.0",
