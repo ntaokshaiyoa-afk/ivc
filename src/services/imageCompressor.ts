@@ -1,13 +1,9 @@
 import { compressImageWorker } from './compressionWorker'
 
-import { detectFormat } from './compressionRouter'
-
 export async function compressImage(
   file: File,
   quality: number,
-  codec: string,
+  codec: string
 ) {
-  const format = detectFormat(file)
-
-  return compressImageWorker(file, quality, format)
+  return compressImageWorker(file, quality, codec)
 }
