@@ -3,7 +3,7 @@ import { encodeOxiPNG } from '../codecs/oxipng'
 import { encodeAVIF } from '../codecs/avif'
 
 self.onmessage = async (e) => {
-  const { file, quality, format } = e.data
+  const { file, quality, codec } = e.data
 
   const bitmap = await createImageBitmap(file)
 
@@ -20,17 +20,29 @@ self.onmessage = async (e) => {
 
   let result
 
-  if (format === 'jpeg') {
-    result = await encodeJpeg(imageData, quality)
-  }
+switch(codec){
 
-  if (format === 'png') {
-    result = await encodeOxiPNG(imageData)
-  }
+case "mozjpeg":
+  buffer = await encodeJpeg(imageData, quality)
+  type="image/jpeg"
+break
 
-  if (format === 'avif') {
-    result = await encodeAVIF(imageData, quality)
-  }
+case "webp":
+  buffer = await encodeWebp(imageData, quality)
+  type="image/webp"
+break
+
+case "avif":
+  buffer = await encodeAvif(imageData, quality)
+  type="image/avif"
+break
+
+case "png":
+  buffer = await encodeOxiPNG(imageData, quality)
+  type="image/png"
+break
+
+}
 
   postMessage(result)
 }
