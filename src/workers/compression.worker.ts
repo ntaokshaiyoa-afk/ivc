@@ -20,29 +20,27 @@ self.onmessage = async (e) => {
 
   let result
 
-switch(codec){
+  switch (codec) {
+    case 'mozjpeg':
+      buffer = await encodeJpeg(imageData, quality)
+      type = 'image/jpeg'
+      break
 
-case "mozjpeg":
-  buffer = await encodeJpeg(imageData, quality)
-  type="image/jpeg"
-break
+    case 'webp':
+      buffer = await encodeWebp(imageData, quality)
+      type = 'image/webp'
+      break
 
-case "webp":
-  buffer = await encodeWebp(imageData, quality)
-  type="image/webp"
-break
+    case 'avif':
+      buffer = await encodeAvif(imageData, quality)
+      type = 'image/avif'
+      break
 
-case "avif":
-  buffer = await encodeAvif(imageData, quality)
-  type="image/avif"
-break
-
-case "png":
-  buffer = await encodeOxiPNG(imageData, quality)
-  type="image/png"
-break
-
-}
+    case 'png':
+      buffer = await encodeOxiPNG(imageData, quality)
+      type = 'image/png'
+      break
+  }
 
   postMessage(result)
 }
