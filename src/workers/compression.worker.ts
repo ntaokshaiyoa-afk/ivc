@@ -52,6 +52,14 @@ self.onmessage = async (e) => {
     encodedBuffer = optimized
   }
 
+  if (codec === "webp-lossless") {
+
+  encoded = await encodeWebp(imageData, {
+    lossless: 1,
+    effort: 4
+  })
+}
+
   const blob = new Blob([encodedBuffer], {
     type: `image/${codec}`,
   })
