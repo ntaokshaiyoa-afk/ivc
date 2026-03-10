@@ -55,6 +55,17 @@ function App() {
   }, [darkMode])
 
   useEffect(() => {
+  files.forEach((item) => {
+    if (
+      item.file.type.startsWith('image/') &&
+      item.status === 'waiting'
+    ) {
+      recompressImage(item)
+    }
+  })
+}, [files])
+
+  useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
 
     const listener = (e: MediaQueryListEvent) => {
@@ -68,65 +79,44 @@ function App() {
     return () => media.removeEventListener('change', listener)
   }, [])
 
-  const handleFiles = (selected: FileList | null) => {
-    if (!selected) return
+const handleFiles = (selected: FileList | null) => {
+  if (!selected) return
 
-    const list = Array.from(selected)
-      .filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
-      .map((f) => ({
-        id: crypto.randomUUID(),
-        file: f,
-        previewUrl: URL.createObjectURL(f),
-        originalSize: f.size,
-        status: 'waiting' as const,
-        progress: 0,
+  const list = Array.from(selected)
+    .filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
+    .map((f) => ({
+      id: crypto.randomUUID(),
+      file: f,
+      previewUrl: URL.createObjectURL(f),
+      originalSize: f.size,
+      status: 'waiting' as const,
+      progress: 0,
+      quality: 0.7,
+      codec: f.type.startsWith('image/') ? 'mozjpeg' : 'h264',
+    }))
 
-        quality: 0.7,
-        codec: f.type.startsWith('image/') ? 'mozjpeg' : 'h264',
-      }))
+  setFiles((prev) => [...prev, ...list])
+}
 
-    setFiles((prev) => {
-      const next = [...prev, ...list]
+const changeQuality = (id: string, value: number) => {
+  setFiles((prev) =>
+    prev.map((f) =>
+      f.id === id
+        ? { ...f, quality: value, status: 'waiting' }
+        : f
+    )
+  )
+}
 
-      list.forEach((file) => {
-        if (file.file.type.startsWith('image/')) {
-          recompressImage(file)
-        }
-      })
-
-      return next
-    })
-  }
-
-  const changeQuality = (id: string, value: number) => {
-    setFiles((prev) => {
-      const updated = prev.map((f) =>
-        f.id === id ? { ...f, quality: value } : f,
-      )
-
-      const item = updated.find((f) => f.id === id)
-
-      if (item && item.file.type.startsWith('image/')) {
-        recompressImage(item)
-      }
-
-      return updated
-    })
-  }
-
-  const changeCodec = (id: string, codec: string) => {
-    setFiles((prev) => {
-      const updated = prev.map((f) => (f.id === id ? { ...f, codec } : f))
-
-      const item = updated.find((f) => f.id === id)
-
-      if (item && item.file.type.startsWith('image/')) {
-        recompressImage(item)
-      }
-
-      return updated
-    })
-  }
+const changeCodec = (id: string, codec: string) => {
+  setFiles((prev) =>
+    prev.map((f) =>
+      f.id === id
+        ? { ...f, codec, status: 'waiting' }
+        : f
+    )
+  )
+}
 
   const recompressImage = async (item: FileItem) => {
     updateStatus(item.id, 'processing', 0)
@@ -162,7 +152,11 @@ function App() {
 
             updateResult(item.id, compressed)
           } else {
-            const compressed = await compressImage(item.file, quality)
+            const compressed = await compressImage(
+  item.file,
+  item.quality,
+  item.codec
+)
             updateResult(item.id, compressed)
           }
         }
