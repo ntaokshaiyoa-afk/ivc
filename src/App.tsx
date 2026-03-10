@@ -330,38 +330,35 @@ function App() {
               className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg transition-colors"
             >
               <div className="grid md:grid-cols-2 gap-4 mb-4">
+                {/* codec */}
+                <select
+                  value={item.codec}
+                  onChange={(e) => changeCodec(item.id, e.target.value)}
+                  className="p-2 rounded border"
+                >
+                  {(isVideo(item.file) ? VIDEO_CODECS : IMAGE_CODECS).map(
+                    (c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ),
+                  )}
+                </select>
 
-{/* codec */}
-<select
-  value={item.codec}
-  onChange={(e)=>changeCodec(item.id,e.target.value)}
-  className="p-2 rounded border"
->
-  {(isVideo(item.file)?VIDEO_CODECS:IMAGE_CODECS)
-    .map(c=>(
-      <option key={c.value} value={c.value}>
-        {c.label}
-      </option>
-  ))}
-</select>
-
-{/* quality */}
-{!isVideo(item.file) && (
-
-<input
-  type="range"
-  min="0.1"
-  max="1"
-  step="0.05"
-  value={item.quality}
-  onChange={(e)=>
-    changeQuality(item.id,Number(e.target.value))
-  }
-/>
-
-)}
-
-</div>
+                {/* quality */}
+                {!isVideo(item.file) && (
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    value={item.quality}
+                    onChange={(e) =>
+                      changeQuality(item.id, Number(e.target.value))
+                    }
+                  />
+                )}
+              </div>
               <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
                 {item.file.name}
               </h3>
