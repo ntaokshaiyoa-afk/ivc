@@ -39,7 +39,21 @@ jobs:
             vite-${{ runner.os }}-
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          echo "Trying npm ci..."
+          npm ci || (
+            echo "Lockfile mismatch detected"
+            npm install
+          )
+
+      - name: Commit lockfile
+        if: github.event_name == 'push'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add package-lock.json
+          git diff --cached --quiet || git commit -m "auto fix lockfile"
+          git push
 
       - name: Prettier (changed files only)
         run: |
