@@ -89,7 +89,7 @@ function App() {
         status: 'waiting' as const,
         progress: 0,
         quality: 0.7,
-        codec: f.type.startsWith('image/') ? 'mozjpeg' : 'h264',
+        codec: f.type.startsWith('image/') ? 'jpeg' : 'h264',
       }))
 
     setFiles((prev) => [...prev, ...list])
