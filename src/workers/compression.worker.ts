@@ -50,8 +50,7 @@ self.onmessage = async (e) => {
   }
 
   if (codec === 'webp-lossless') {
-    const encoded = await encodePng(imageData)
-    encodedBuffer = await encodeWebp(encoded, {
+    encodedBuffer = await encodeWebp(imageData, {
       lossless: 1,
       quality: 100,
     })
