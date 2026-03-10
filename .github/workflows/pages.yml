@@ -19,17 +19,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout
+      # -----------------------------
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
+      # -----------------------------
+      # Node
+      # -----------------------------
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      # -----------------------------
+      # Cache Vite
+      # -----------------------------
       - name: Cache Vite
         uses: actions/cache@v4
         with:
@@ -39,7 +48,22 @@ jobs:
             vite-${{ runner.os }}-
 
       # -----------------------------
-      # Dependency install (smart)
+      # Detect changed files
+      # -----------------------------
+      - name: Detect changes
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1)
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -E '^(src|public|vite.config|package.json)'; then
+            echo "build_required=true" >> $GITHUB_OUTPUT
+          else
+            echo "build_required=false" >> $GITHUB_OUTPUT
+          fi
+
+      # -----------------------------
+      # Install dependencies
       # -----------------------------
       - name: Install dependencies
         run: |
@@ -62,7 +86,7 @@ jobs:
           fi
 
       # -----------------------------
-      # Auto format commit
+      # Auto commit formatting
       # -----------------------------
       - name: Commit formatting
         if: github.event_name == 'push'
@@ -71,11 +95,8 @@ jobs:
           git config --global user.email "github-actions@github.com"
 
           git add .
-
-          # workflow変更は除外
           git restore --staged .github/workflows || true
 
-          # 変更があればcommit
           if ! git diff --cached --quiet; then
             git commit -m "auto format"
             git push
@@ -96,15 +117,17 @@ jobs:
         run: npm run typecheck
 
       # -----------------------------
-      # Build
+      # Build (only when needed)
       # -----------------------------
       - name: Build
+        if: steps.changes.outputs.build_required == 'true'
         run: npm run build
 
       # -----------------------------
-      # Bundle size check
+      # Bundle size
       # -----------------------------
       - name: Bundle size check
+        if: steps.changes.outputs.build_required == 'true'
         run: |
           SIZE=$(du -sk dist | cut -f1)
           echo "Bundle size: ${SIZE}KB"
@@ -115,18 +138,18 @@ jobs:
           fi
 
       # -----------------------------
-      # Pages deploy (push only)
+      # Pages deploy
       # -----------------------------
       - name: Setup Pages
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
       - name: Deploy
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
         uses: actions/deploy-pages@v4
