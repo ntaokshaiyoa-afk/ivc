@@ -1,5 +1,5 @@
 import { encode as encodePng } from '@jsquash/png'
-import { encode as encodeJpeg } from '@jsquash/mozjpeg'
+import { encode as encodeJpeg } from '@jsquash/jpeg'
 import { encode as encodeWebp } from '@jsquash/webp'
 import { encode as encodeAVIF } from '@jsquash/avif'
 
