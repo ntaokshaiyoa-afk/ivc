@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { compressImage } from './services/imageCompressor'
 import JSZip from 'jszip'
 
@@ -54,13 +54,13 @@ function App() {
     }
   }, [darkMode])
 
-  useEffect(() => {
-    files.forEach((item) => {
-      if (item.file.type.startsWith('image/') && item.status === 'waiting') {
-        recompressImage(item)
-      }
-    })
-  }, [files])
+useEffect(() => {
+  files.forEach((item) => {
+    if (item.file.type.startsWith('image/') && item.status === 'waiting') {
+      recompressImage(item)
+    }
+  })
+}, [files, recompressImage])
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
@@ -109,13 +109,17 @@ function App() {
     )
   }
 
-  const recompressImage = async (item: FileItem) => {
-    updateStatus(item.id, 'processing', 0)
+const recompressImage = useCallback(async (item: FileItem) => {
+  updateStatus(item.id, 'processing', 0)
 
-    const compressed = await compressImage(item.file, item.quality, item.codec)
+  const compressed = await compressImage(
+    item.file,
+    item.quality,
+    item.codec
+  )
 
-    updateResult(item.id, compressed)
-  }
+  updateResult(item.id, compressed)
+}, [])
 
   const compressAll = async () => {
     setIsProcessing(true)
