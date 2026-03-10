@@ -32,7 +32,7 @@ function App() {
   })
 
   const IMAGE_CODECS = [
-    { value: 'mozjpeg', label: 'JPEG (mozjpeg)' },
+    { value: 'jpeg', label: 'JPEG (jpeg)' },
     { value: 'webp', label: 'WebP' },
     { value: 'avif', label: 'AVIF' },
     { value: 'png', label: 'PNG (lossless)' },
