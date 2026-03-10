@@ -17,7 +17,7 @@ self.onmessage = async (e) => {
 
   let encodedBuffer
 
-  if (format === 'mozjpeg') {
+  if (format === 'jpeg') {
     encodedBuffer = await encodeJpeg(imageData, {
       quality: Math.round(quality * 100),
     })
