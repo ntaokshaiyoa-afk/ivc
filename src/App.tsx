@@ -44,38 +44,6 @@ function App() {
     { value: 'av1', label: 'AV1' },
   ]
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }, [darkMode])
-
-  useEffect(() => {
-    files.forEach((item) => {
-      if (item.file.type.startsWith('image/') && item.status === 'waiting') {
-        recompressImage(item)
-      }
-    })
-  }, [files, recompressImage])
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-
-    const listener = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem('theme')
-      if (!saved) {
-        setDarkMode(e.matches)
-      }
-    }
-
-    media.addEventListener('change', listener)
-    return () => media.removeEventListener('change', listener)
-  }, [])
-
   const handleFiles = (selected: FileList | null) => {
     if (!selected) return
 
@@ -230,6 +198,38 @@ function App() {
 
   const isVideo = (file: File) => file.type.startsWith('video/')
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }, [darkMode])
+
+  useEffect(() => {
+    files.forEach((item) => {
+      if (item.file.type.startsWith('image/') && item.status === 'waiting') {
+        recompressImage(item)
+      }
+    })
+  }, [files, recompressImage])
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+    const listener = (e: MediaQueryListEvent) => {
+      const saved = localStorage.getItem('theme')
+      if (!saved) {
+        setDarkMode(e.matches)
+      }
+    }
+
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
+  
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-8 py-10">
