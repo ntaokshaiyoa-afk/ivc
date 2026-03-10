@@ -101,7 +101,7 @@ export default defineConfig({
     sourcemap: false,
 
     // 高速minify
-    minify: 'esbuild',
+    minify: false, //'esbuild',
 
     chunkSizeWarningLimit: 2000,
 
