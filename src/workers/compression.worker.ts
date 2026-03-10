@@ -4,7 +4,7 @@ import { encode as encodeWebp } from '@jsquash/webp'
 import { encode as encodeAVIF } from '@jsquash/avif'
 
 self.onmessage = async (e) => {
-  const { file, quality, format } = e.data
+  const { file, quality, codec } = e.data
 
   const bitmap = await createImageBitmap(file)
 
@@ -17,25 +17,25 @@ self.onmessage = async (e) => {
 
   let encodedBuffer
 
-  if (format === 'jpeg') {
+  if (codec === 'jpeg') {
     encodedBuffer = await encodeJpeg(imageData, {
       quality: Math.round(quality * 100),
     })
   }
 
-  if (format === 'webp') {
+  if (codec === 'webp') {
     encodedBuffer = await encodeWebp(imageData, {
       quality: quality * 100,
     })
   }
 
-  if (format === 'avif') {
+  if (codec === 'avif') {
     encodedBuffer = await encodeAVIF(imageData, {
       quality: quality * 100,
     })
   }
 
-  if (format === 'png') {
+  if (codec === 'png') {
     encodedBuffer = await encodePng(imageData)
   }
 
