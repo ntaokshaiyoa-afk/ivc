@@ -5,7 +5,7 @@ import { detectFormat } from './compressionRouter'
 export async function compressImage(
   file: File,
   quality: number,
-  codec: string
+  codec: string,
 ) {
   const format = detectFormat(file)
 
