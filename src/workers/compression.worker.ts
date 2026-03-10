@@ -19,14 +19,14 @@ self.onmessage = async (e) => {
 
   if (codec === 'jpeg') {
     encodedBuffer = await encodeJpeg(imageData, {
-    quality: Math.round(quality * 100),
+      quality: Math.round(quality * 100),
 
-    progressive: true,
+      progressive: true,
 
-    optimize_coding: true,
+      optimize_coding: true,
 
-    chroma_subsample: 2
-  })
+      chroma_subsample: 2,
+    })
   }
 
   if (codec === 'webp') {
