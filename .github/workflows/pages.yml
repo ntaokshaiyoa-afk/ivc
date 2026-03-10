@@ -129,9 +129,14 @@ jobs:
       # -----------------------------
       - name: Prettier
         run: |
-          CHANGED=$(git diff --name-only HEAD~1 | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' || true)
+          CHANGED=$(git diff --name-only HEAD~1 \
+            | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' \
+            | grep -v '^node_modules/' || true)
+
           if [ -n "$CHANGED" ]; then
             pnpm exec prettier --write $CHANGED
+          else
+            echo "No files to format"
           fi
 
       # -----------------------------
