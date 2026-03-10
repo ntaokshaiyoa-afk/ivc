@@ -229,7 +229,7 @@ function App() {
     media.addEventListener('change', listener)
     return () => media.removeEventListener('change', listener)
   }, [])
-  
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto px-8 py-10">
