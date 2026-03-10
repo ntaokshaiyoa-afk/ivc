@@ -82,11 +82,11 @@ export default defineConfig({
     exclude: [
       '@ffmpeg/ffmpeg',
       '@ffmpeg/util',
-      "@jsquash/jpeg",
-      "@jsquash/webp",
-      "@jsquash/avif",
-      "@jsquash/png",
-      "@jsquash/oxipng",
+      '@jsquash/jpeg',
+      '@jsquash/webp',
+      '@jsquash/avif',
+      '@jsquash/png',
+      '@jsquash/oxipng',
     ],
   },
 
