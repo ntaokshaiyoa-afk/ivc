@@ -1,4 +1,5 @@
 import { encode as encodePng } from '@jsquash/png'
+import { optimise as optimisePng } from '@jsquash/oxipng'
 import { encode as encodeJpeg } from '@jsquash/jpeg'
 import { encode as encodeWebp } from '@jsquash/webp'
 import { encode as encodeAVIF } from '@jsquash/avif'
@@ -42,7 +43,13 @@ self.onmessage = async (e) => {
   }
 
   if (codec === 'png') {
-    encodedBuffer = await encodePng(imageData)
+      const encoded = await encodePng(imageData)
+
+  const optimized = await optimisePng(encoded, {
+    level: 3
+  })
+
+  encodedBuffer = optimized
   }
 
   const blob = new Blob([encodedBuffer], {
