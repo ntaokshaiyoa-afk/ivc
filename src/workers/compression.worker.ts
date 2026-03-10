@@ -57,7 +57,7 @@ self.onmessage = async (e) => {
     })
     encodedBuffer = await encodeWebp(optimized, {
       lossless: 1,
-      qualiry: 100,
+      quality: 100,
     })
   }
 
