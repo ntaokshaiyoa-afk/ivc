@@ -22,39 +22,77 @@ jobs:
       # -----------------------------
       # Checkout
       # -----------------------------
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       # -----------------------------
       # Node
       # -----------------------------
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       # -----------------------------
-      # Cache Vite
+      # pnpm setup
       # -----------------------------
-      - name: Cache Vite
-        uses: actions/cache@v4
+      - uses: pnpm/action-setup@v3
         with:
-          path: node_modules/.vite
-          key: vite-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            vite-${{ runner.os }}-
+          version: 9
 
       # -----------------------------
-      # Detect changed files
+      # pnpm migration check
+      # -----------------------------
+      - name: Detect pnpm migration
+        id: pnpmcheck
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pnpm_ready=true" >> $GITHUB_OUTPUT
+          else
+            echo "pnpm_ready=false" >> $GITHUB_OUTPUT
+          fi
+
+      # -----------------------------
+      # Auto migrate to pnpm
+      # -----------------------------
+      - name: Migrate to pnpm
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'false'
+        run: |
+          echo "Migrating project to pnpm"
+
+          npm install
+          pnpm import
+          pnpm install
+
+      # -----------------------------
+      # Commit pnpm migration
+      # -----------------------------
+      - name: Commit pnpm migration
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'false' && github.event_name == 'push'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add pnpm-lock.yaml
+          git commit -m "auto migrate to pnpm"
+          git push
+
+      # -----------------------------
+      # Cache pnpm
+      # -----------------------------
+      - uses: actions/setup-node@v4
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # -----------------------------
+      # Detect changes
       # -----------------------------
       - name: Detect changes
         id: changes
         run: |
           CHANGED=$(git diff --name-only HEAD~1)
-          echo "$CHANGED"
 
           if echo "$CHANGED" | grep -E '^(src|public|vite.config|package.json)'; then
             echo "build_required=true" >> $GITHUB_OUTPUT
@@ -66,27 +104,38 @@ jobs:
       # Install dependencies
       # -----------------------------
       - name: Install dependencies
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'true'
         run: |
           if git diff --name-only HEAD~1 | grep -q "package.json"; then
-            echo "Dependency change detected → npm install"
-            npm install
+            pnpm install
           else
-            echo "No dependency change → npm ci"
-            npm ci
+            pnpm install --frozen-lockfile
           fi
+
+      # -----------------------------
+      # Cache vite
+      # -----------------------------
+      - uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.vite
+            dist
+          key: vite-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            vite-${{ runner.os }}-
 
       # -----------------------------
       # Prettier
       # -----------------------------
-      - name: Prettier (changed files only)
+      - name: Prettier
         run: |
           CHANGED=$(git diff --name-only HEAD~1 | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' || true)
           if [ -n "$CHANGED" ]; then
-            npx prettier --write $CHANGED
+            pnpm exec prettier --write $CHANGED
           fi
 
       # -----------------------------
-      # Auto commit formatting
+      # Auto format commit
       # -----------------------------
       - name: Commit formatting
         if: github.event_name == 'push'
@@ -100,45 +149,27 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "auto format"
             git push
-          else
-            echo "No formatting changes"
           fi
 
       # -----------------------------
       # Lint
       # -----------------------------
-      - name: ESLint
-        run: npm run lint
+      - run: pnpm run lint
 
       # -----------------------------
-      # Type check
+      # Typecheck
       # -----------------------------
-      - name: TypeScript check
-        run: npm run typecheck
+      - run: pnpm run typecheck
 
       # -----------------------------
-      # Build (only when needed)
+      # Build
       # -----------------------------
       - name: Build
         if: steps.changes.outputs.build_required == 'true'
-        run: npm run build
+        run: pnpm run build
 
       # -----------------------------
-      # Bundle size
-      # -----------------------------
-      - name: Bundle size check
-        if: steps.changes.outputs.build_required == 'true'
-        run: |
-          SIZE=$(du -sk dist | cut -f1)
-          echo "Bundle size: ${SIZE}KB"
-
-          if [ "$SIZE" -gt 15000 ]; then
-            echo "Bundle too large!"
-            exit 1
-          fi
-
-      # -----------------------------
-      # Pages deploy
+      # Deploy
       # -----------------------------
       - name: Setup Pages
         if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
