@@ -9,8 +9,12 @@ type FileItem = {
   compressedUrl?: string
   originalSize: number
   compressedSize?: number
+
   status: 'waiting' | 'processing' | 'done'
   progress: number
+
+  quality: number
+  codec: string
 }
 
 function App() {
@@ -26,6 +30,19 @@ function App() {
     // 無ければOS設定を使用
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
+  
+  const IMAGE_CODECS = [
+  { value: "mozjpeg", label: "JPEG (mozjpeg)" },
+  { value: "webp", label: "WebP" },
+  { value: "avif", label: "AVIF" },
+  { value: "png", label: "PNG (lossless)" }
+]
+
+const VIDEO_CODECS = [
+  { value: "h264", label: "H264" },
+  { value: "vp9", label: "VP9" },
+  { value: "av1", label: "AV1" }
+]
 
   useEffect(() => {
     if (darkMode) {
@@ -56,17 +73,79 @@ function App() {
 
     const list = Array.from(selected)
       .filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
-      .map((f) => ({
-        id: crypto.randomUUID(),
-        file: f,
-        previewUrl: URL.createObjectURL(f),
-        originalSize: f.size,
-        status: 'waiting' as const,
-        progress: 0,
-      }))
+.map((f) => ({
+  id: crypto.randomUUID(),
+  file: f,
+  previewUrl: URL.createObjectURL(f),
+  originalSize: f.size,
+  status: 'waiting' as const,
+  progress: 0,
 
-    setFiles((prev) => [...prev, ...list])
+  quality: 0.7,
+  codec: f.type.startsWith("image/")
+    ? "mozjpeg"
+    : "h264"
+}))
+
+    setFiles(prev => {
+  const next = [...prev,...list]
+
+  list.forEach(file=>{
+    if(file.file.type.startsWith("image/")){
+      recompressImage(file)
+    }
+  })
+
+  return next
+})
   }
+
+const changeQuality = (id:string,value:number)=>{
+
+  setFiles(prev=>{
+    const updated = prev.map(f =>
+      f.id===id ? {...f,quality:value} : f
+    )
+
+    const item = updated.find(f=>f.id===id)
+
+    if(item && item.file.type.startsWith("image/")){
+      recompressImage(item)
+    }
+
+    return updated
+  })
+}
+
+  const changeCodec = (id:string,codec:string)=>{
+
+  setFiles(prev=>{
+    const updated = prev.map(f =>
+      f.id===id ? {...f,codec} : f
+    )
+
+    const item = updated.find(f=>f.id===id)
+
+    if(item && item.file.type.startsWith("image/")){
+      recompressImage(item)
+    }
+
+    return updated
+  })
+}
+  
+  const recompressImage = async (item: FileItem) => {
+
+  updateStatus(item.id,'processing',0)
+
+  const compressed = await compressImage(
+    item.file,
+    item.quality,
+    item.codec
+  )
+
+  updateResult(item.id,compressed)
+}
 
   const compressAll = async () => {
     setIsProcessing(true)
