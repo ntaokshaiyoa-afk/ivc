@@ -43,13 +43,13 @@ self.onmessage = async (e) => {
   }
 
   if (codec === 'png') {
-      const encoded = await encodePng(imageData)
+    const encoded = await encodePng(imageData)
 
-  const optimized = await optimisePng(encoded, {
-    level: 3
-  })
+    const optimized = await optimisePng(encoded, {
+      level: 3,
+    })
 
-  encodedBuffer = optimized
+    encodedBuffer = optimized
   }
 
   const blob = new Blob([encodedBuffer], {
