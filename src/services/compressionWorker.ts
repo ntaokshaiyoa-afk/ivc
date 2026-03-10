@@ -1,31 +1,24 @@
 export function compressImageWorker(
   file: File,
   quality: number,
-  codec: string
+  codec: string,
 ): Promise<File> {
-
   return new Promise((resolve) => {
-
     const worker = new Worker(
       new URL('../workers/compression.worker.ts', import.meta.url),
-      { type: 'module' }
+      { type: 'module' },
     )
 
     worker.postMessage({
       file,
       quality,
-      codec
+      codec,
     })
 
     worker.onmessage = (e) => {
-
       const blob = e.data
 
-      const result = new File(
-        [blob],
-        file.name,
-        { type: blob.type }
-      )
+      const result = new File([blob], file.name, { type: blob.type })
 
       resolve(result)
 
