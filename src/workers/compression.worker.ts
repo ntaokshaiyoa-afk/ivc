@@ -40,7 +40,7 @@ self.onmessage = async (e) => {
   }
 
   const blob = new Blob([encodedBuffer], {
-    type: `image/${format === 'mozjpeg' ? 'jpeg' : format}`,
+    type: `image/${format === 'jpeg' ? 'jpeg' : format}`,
   })
 
   self.postMessage(blob)
