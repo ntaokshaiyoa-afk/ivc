@@ -31,13 +31,13 @@ function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
 
-const IMAGE_CODECS = [
-  { value: "jpeg", label: "JPEG (MozJPEG)" },
-  { value: "webp", label: "WebP" },
-  { value: "avif", label: "AVIF" },
-  { value: "png", label: "PNG (oxipng)" },
-  { value: "webp-lossless", label: "WebP Lossless" }
-]
+  const IMAGE_CODECS = [
+    { value: 'jpeg', label: 'JPEG (MozJPEG)' },
+    { value: 'webp', label: 'WebP' },
+    { value: 'avif', label: 'AVIF' },
+    { value: 'png', label: 'PNG (oxipng)' },
+    { value: 'webp-lossless', label: 'WebP Lossless' },
+  ]
 
   const VIDEO_CODECS = [
     { value: 'h264', label: 'H264' },
