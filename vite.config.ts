@@ -81,7 +81,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: [
       '@ffmpeg/ffmpeg',
-      '@ffmpeg/util'
+      '@ffmpeg/util',
       "@jsquash/jpeg",
       "@jsquash/webp",
       "@jsquash/avif",
