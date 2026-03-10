@@ -32,7 +32,7 @@ self.onmessage = async (e) => {
       break
 
     case 'avif':
-      buffer = await encodeAvif(imageData, quality)
+      buffer = await encodeAVIF(imageData, quality)
       type = 'image/avif'
       break
 
