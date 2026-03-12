@@ -479,13 +479,13 @@ function ImageCompare({
           touchAction: 'none',
         }}
       />
+      <button
+        onClick={() => setModalImage({ before, after })}
+        className="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded"
+      >
+        🔍
+      </button>
     </div>
-    <button
-      onClick={() => setModalImage({ before, after })}
-      className="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded"
-    >
-      🔍
-    </button>
   )
 }
 function VideoCompare({ before, after }: { before: string; after: string }) {
