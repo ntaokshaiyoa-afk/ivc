@@ -414,14 +414,14 @@ function App() {
           ))}
         </div>
       </div>
+      {modalOpen && modalBefore && modalAfter && (
+        <ImageCompareModal
+          before={modalBefore}
+          after={modalAfter}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </div>
-    {modalOpen && modalBefore && modalAfter && (
-      <ImageCompareModal
-        before={modalBefore}
-        after={modalAfter}
-        onClose={() => setModalOpen(false)}
-      />
-    )}
   )
 }
 
