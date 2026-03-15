@@ -30,10 +30,6 @@ function App() {
     setModalAfter(after)
     setModalOpen(true)
   }
-  const [modalImage, setModalImage] = useState<{
-    before: string
-    after: string
-  } | null>(null)
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     // 保存済み設定があれば優先
     const saved = localStorage.getItem('theme')
@@ -414,13 +410,13 @@ function App() {
           ))}
         </div>
       </div>
-      {modalOpen && modalBefore && modalAfter && (
-        <ImageCompareModal
-          before={modalBefore}
-          after={modalAfter}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
+{modalOpen && modalBefore && modalAfter && (
+  <ImageCompareModal
+    before={modalBefore}
+    after={modalAfter}
+    onClose={() => setModalOpen(false)}
+  />
+)}
     </div>
   )
 }
@@ -430,12 +426,10 @@ export default App
 function ImageCompare({
   before,
   after,
-  onOpen,
 }: {
   before: string
   after: string
-  onOpen: () => void
-}) {
+})
   const [position, setPosition] = useState(50)
 
   return (
@@ -479,12 +473,6 @@ function ImageCompare({
           touchAction: 'none',
         }}
       />
-      <button
-        onClick={() => setModalImage({ before, after })}
-        className="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded"
-      >
-        🔍
-      </button>
     </div>
   )
 }
@@ -500,40 +488,33 @@ function VideoCompare({ before, after }: { before: string; after: string }) {
 
     target.currentTime = src.currentTime
 
-    if (!src.paused) {
-      target.play()
-    } else {
-      target.pause()
-    }
+    if (!src.paused) target.play()
+    else target.pause()
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <video
-        ref={beforeRef}
-        src={before}
-        controls
-        onPlay={() => sync('before')}
-        onPause={() => sync('before')}
-        onSeeked={() => sync('before')}
-        className="w-full rounded-xl"
-      />
-      <video
-        ref={afterRef}
-        src={after}
-        controls
-        onPlay={() => sync('after')}
-        onPause={() => sync('after')}
-        onSeeked={() => sync('after')}
-        className="w-full rounded-xl"
-      />
-    </div>
-    {modalImage && (
-      <ImageCompareModal
-        before={modalImage.before}
-        after={modalImage.after}
-        onClose={() => setModalImage(null)}
-      />
-    )}
+    <>
+      <div className="grid md:grid-cols-2 gap-6">
+        <video
+          ref={beforeRef}
+          src={before}
+          controls
+          onPlay={() => sync('before')}
+          onPause={() => sync('before')}
+          onSeeked={() => sync('before')}
+          className="w-full rounded-xl"
+        />
+
+        <video
+          ref={afterRef}
+          src={after}
+          controls
+          onPlay={() => sync('after')}
+          onPause={() => sync('after')}
+          onSeeked={() => sync('after')}
+          className="w-full rounded-xl"
+        />
+      </div>
+    </>
   )
 }
