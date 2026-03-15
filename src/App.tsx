@@ -429,7 +429,7 @@ function ImageCompare({
 }: {
   before: string
   after: string
-})
+}) {
   const [position, setPosition] = useState(50)
 
   return (
