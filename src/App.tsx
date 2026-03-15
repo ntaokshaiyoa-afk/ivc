@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { compressImage } from './services/imageCompressor'
+import {} from import { ImageCompareModal } from './components/ImageCompareModal'
 import JSZip from 'jszip'
 
 type FileItem = {
