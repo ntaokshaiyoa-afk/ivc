@@ -61,27 +61,32 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       </button>
 
       <div
-        className="relative w-[90vw] h-[90vh] overflow-hidden select-none"
+        className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center"
         onMouseDown={handleMouseDown}
       >
-        {/* before */}
-        <img
-          src={before}
-          className="absolute"
+        <div
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
-        />
+          className="relative"
+        >
+          {/* before */}
+          <img
+            src={before}
+            className="block max-w-none"
+            draggable={false}
+          />
 
-        {/* after */}
-        <img
-          src={after}
-          className="absolute"
-          style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            clipPath: `inset(0 0 0 ${position}%)`,
-          }}
-        />
+          {/* after */}
+          <img
+            src={after}
+            className="absolute inset-0 max-w-none"
+            style={{
+              clipPath: `inset(0 0 0 ${position}%)`,
+            }}
+            draggable={false}
+          />
+        </div>
 
         {/* divider */}
         <div
