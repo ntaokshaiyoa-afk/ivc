@@ -24,7 +24,7 @@ function App() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalBefore, setModalBefore] = useState<string | null>(null)
   const [modalAfter, setModalAfter] = useState<string | null>(null)
-  
+
   const openModal = (before: string, after: string) => {
     setModalBefore(before)
     setModalAfter(after)
@@ -327,7 +327,9 @@ function App() {
               <div className="flex justify-end mb-2">
                 {item.compressedUrl && (
                   <button
-                    onClick={() => openModal(item.previewUrl, item.compressedUrl)}
+                    onClick={() =>
+                      openModal(item.previewUrl, item.compressedUrl)
+                    }
                     className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg"
                   >
                     拡大表示
@@ -410,26 +412,20 @@ function App() {
           ))}
         </div>
       </div>
-{modalOpen && modalBefore && modalAfter && (
-  <ImageCompareModal
-    before={modalBefore}
-    after={modalAfter}
-    onClose={() => setModalOpen(false)}
-  />
-)}
+      {modalOpen && modalBefore && modalAfter && (
+        <ImageCompareModal
+          before={modalBefore}
+          after={modalAfter}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
 
 export default App
 
-function ImageCompare({
-  before,
-  after,
-}: {
-  before: string
-  after: string
-}) {
+function ImageCompare({ before, after }: { before: string; after: string }) {
   const [position, setPosition] = useState(50)
 
   return (
