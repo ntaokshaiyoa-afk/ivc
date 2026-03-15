@@ -71,11 +71,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           className="relative"
         >
           {/* before */}
-          <img
-            src={before}
-            className="block max-w-none"
-            draggable={false}
-          />
+          <img src={before} className="block max-w-none" draggable={false} />
 
           {/* after */}
           <img
