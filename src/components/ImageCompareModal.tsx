@@ -97,7 +97,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       >
         {/* UIバー */}
         <div className="absolute top-4 left-4 flex gap-3 z-10">
-
           <button
             onClick={resetView}
             className="bg-white/90 px-3 py-1 rounded text-sm"
