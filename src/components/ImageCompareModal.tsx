@@ -163,7 +163,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
@@ -189,21 +188,15 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         {/* image area */}
 
         <div className="absolute inset-0 flex items-center justify-center">
-
           <div
             className="relative will-change-transform"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           >
-
             {/* before */}
 
-            <img
-              src={before}
-              className="block max-w-none"
-              draggable={false}
-            />
+            <img src={before} className="block max-w-none" draggable={false} />
 
             {/* after */}
 
@@ -213,15 +206,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
                 width: `${correctedX}px`,
               }}
             >
-              <img
-                src={after}
-                className="block max-w-none"
-                draggable={false}
-              />
+              <img src={after} className="block max-w-none" draggable={false} />
             </div>
-
           </div>
-
         </div>
 
         {/* divider */}
@@ -251,7 +238,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )
