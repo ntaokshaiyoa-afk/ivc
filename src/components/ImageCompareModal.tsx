@@ -10,18 +10,34 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
-  /* const clipX = (position / 100) * (containerRef.current?.clientWidth || 0)
-
-  const correctedClip = (clipX - offset.x) / scale */
 
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
+
+  const [containerWidth, setContainerWidth] = useState(0)
 
   const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
+
+  /* container size */
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const update = () => {
+      setContainerWidth(containerRef.current!.clientWidth)
+    }
+
+    update()
+
+    const ro = new ResizeObserver(update)
+    ro.observe(containerRef.current)
+
+    return () => ro.disconnect()
+  }, [])
 
   /* ESC close */
 
@@ -83,7 +99,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* slider move */
+    /* slider */
 
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
@@ -95,7 +111,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* image pan */
+    /* pan */
 
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
@@ -127,6 +143,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
+  /* bar position */
+
+  const barX = (position / 100) * containerWidth
+  const correctedX = (barX - offset.x) / scale
+
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -142,6 +163,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
@@ -167,17 +189,19 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         {/* image area */}
 
         <div className="absolute inset-0 flex items-center justify-center">
+
           <div
             className="relative will-change-transform"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           >
+
             {/* before */}
 
             <img
               src={before}
-              className="block max-w-none object-contain pointer-events-none"
+              className="block max-w-none"
               draggable={false}
             />
 
@@ -186,31 +210,33 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             <div
               className="absolute top-0 left-0 h-full overflow-hidden pointer-events-none"
               style={{
-                width: `${position}%`,
+                width: `${correctedX}px`,
               }}
             >
               <img
                 src={after}
-                className="block max-w-none object-contain"
+                className="block max-w-none"
                 draggable={false}
               />
             </div>
+
           </div>
+
         </div>
 
         {/* divider */}
 
         <div
           className="absolute top-0 bottom-0 w-[2px] bg-white z-20"
-          style={{ left: `${position}%` }}
+          style={{ left: `${barX}px` }}
         />
 
-        {/* slider hit area */}
+        {/* slider */}
 
         <div
           className="absolute z-30"
           style={{
-            left: `${position}%`,
+            left: `${barX}px`,
             top: 0,
             bottom: 0,
             transform: 'translateX(-50%)',
@@ -225,6 +251,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   )
