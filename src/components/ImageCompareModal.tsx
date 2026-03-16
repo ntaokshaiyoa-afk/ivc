@@ -11,8 +11,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const [position, setPosition] = useState(50)
 
-  // ★追加（最小修正）
-  const containerWidth = containerRef.current?.clientWidth || 0
+  const [containerWidth, setContainerWidth] = useState(0)
   const clipWidth = containerWidth * (position / 100)
 
   const [scale, setScale] = useState(1)
@@ -23,6 +22,21 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
+
+  /* container width */
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth)
+      }
+    }
+
+    updateWidth()
+
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
+  }, [])
 
   /* ESC close */
 
