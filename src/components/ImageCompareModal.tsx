@@ -80,48 +80,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setScale((s) => Math.min(10, Math.max(0.2, s + delta)))
   }
 
-  /* image drag */
-
-  const startImageDrag = (e: React.MouseEvent) => {
-    if (draggingSlider.current) return
-
-    draggingImage.current = true
-    last.current = { x: e.clientX, y: e.clientY }
-  }
-
-  const move = (e: React.MouseEvent) => {
-    if (draggingSlider.current) {
-      const rect = containerRef.current!.getBoundingClientRect()
-
-      const percent = ((e.clientX - rect.left) / rect.width) * 100
-
-      setPosition(Math.min(100, Math.max(0, percent)))
-
-      return
-    }
-
-    if (!draggingImage.current) return
-
-    const dx = e.clientX - last.current.x
-    const dy = e.clientY - last.current.y
-
-    last.current = { x: e.clientX, y: e.clientY }
-
-    setOffset((o) => ({
-      x: o.x + dx,
-      y: o.y + dy,
-    }))
-  }
-
   const stopDrag = () => {
     draggingImage.current = false
     draggingSlider.current = false
-  }
-
-  const startSlider = (e: React.MouseEvent) => {
-    e.stopPropagation()
-
-    draggingSlider.current = true
   }
 
   const resetView = () => {
