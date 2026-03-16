@@ -10,6 +10,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
+
+const containerWidth = containerRef.current?.clientWidth || 0
+const clipWidth = containerWidth * (position / 100)
   /* const clipX = (position / 100) * (containerRef.current?.clientWidth || 0)
 
   const correctedClip = (clipX - offset.x) / scale
