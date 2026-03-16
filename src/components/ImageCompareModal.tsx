@@ -10,6 +10,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
+  const clipX = (position / 100) * (containerRef.current?.clientWidth || 0)
+
+const correctedClip =
+  (clipX - offset.x) / scale
 
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
@@ -183,9 +187,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
           <div
             className="absolute inset-0 overflow-hidden pointer-events-none"
-            style={{
-              width: `${position}%`,
-            }}
+style={{
+  clipPath: `inset(0 0 0 ${correctedClip}px)`,
+}}
           >
             <div className="absolute inset-0 flex items-center justify-center">
               <div
