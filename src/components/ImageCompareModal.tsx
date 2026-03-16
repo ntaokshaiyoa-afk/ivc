@@ -187,11 +187,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
                 width: `${Math.max(0, imageClip)}px`,
               }}
             >
-              <img
-                src={after}
-                className="block max-w-none"
-                draggable={false}
-              />
+              <img src={after} className="block max-w-none" draggable={false} />
             </div>
           </div>
         </div>
