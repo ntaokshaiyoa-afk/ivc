@@ -12,7 +12,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [position, setPosition] = useState(50)
   const clipX = (position / 100) * (containerRef.current?.clientWidth || 0)
 
-  const correctedClip = (clipX - offset.x) / scale
+  /* const correctedClip = (clipX - offset.x) / scale */
 
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
