@@ -12,7 +12,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [position, setPosition] = useState(50)
 
   const [containerWidth, setContainerWidth] = useState(0)
-  const clipWidth = containerWidth * (position / 100)
 
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
@@ -142,6 +141,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
+  /* clip計算 */
+
+  const containerClip = containerWidth * (position / 100)
+  const imageClip = (containerClip - offset.x) / scale
+
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -189,12 +193,14 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             }}
           >
             {/* before */}
+
             <img src={before} className="block max-w-none" draggable={false} />
 
             {/* after */}
+
             <div
               className="absolute left-0 top-0 overflow-hidden"
-              style={{ width: `${clipWidth}px` }}
+              style={{ width: `${Math.max(0, imageClip)}px` }}
             >
               <img src={after} className="block max-w-none" draggable={false} />
             </div>
