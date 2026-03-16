@@ -14,7 +14,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  const [containerWidth, setContainerWidth] = useState(0)
+  const [containerWidth, setContainerWidth] = useState(1)
 
   const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
@@ -129,13 +129,8 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
 
-    if (pointers.current.size < 2) {
-      pinchStart.current = 0
-    }
-
-    if (pointers.current.size === 0) {
-      mode.current = null
-    }
+    if (pointers.current.size < 2) pinchStart.current = 0
+    if (pointers.current.size === 0) mode.current = null
   }
 
   const resetView = () => {
@@ -143,10 +138,13 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
-  /* bar position */
+  /* ===== 座標変換 ===== */
 
   const barX = (position / 100) * containerWidth
-  const correctedX = (barX - offset.x) / scale
+
+  /* screen → image(transform)座標 */
+
+  const imageX = (barX - offset.x) / scale
 
   return (
     <div
@@ -185,30 +183,28 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* image area */}
+        {/* ===== transform layer (座標統一) ===== */}
 
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="relative will-change-transform"
+        <div
+          className="relative will-change-transform"
+          style={{
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+          }}
+        >
+          {/* before */}
+
+          <img src={before} className="block max-w-none" draggable={false} />
+
+          {/* after */}
+
+          <img
+            src={after}
+            className="absolute inset-0 max-w-none"
             style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              clipPath: `inset(0 0 0 ${imageX}px)`,
             }}
-          >
-            {/* before */}
-
-            <img src={before} className="block max-w-none" draggable={false} />
-
-            {/* after */}
-
-            <div
-              className="absolute top-0 left-0 h-full overflow-hidden pointer-events-none"
-              style={{
-                width: `${correctedX}px`,
-              }}
-            >
-              <img src={after} className="block max-w-none" draggable={false} />
-            </div>
-          </div>
+            draggable={false}
+          />
         </div>
 
         {/* divider */}
