@@ -14,32 +14,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  /*
-  const [containerWidth, setContainerWidth] = useState(1)
-  */
-
   const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
-
-  /* container size */
-
-  useEffect(() => {
-    if (!containerRef.current) return
-
-    const update = () => {
-      setContainerWidth(containerRef.current!.clientWidth)
-    }
-
-    update()
-
-    const ro = new ResizeObserver(update)
-    ro.observe(containerRef.current)
-
-    return () => ro.disconnect()
-  }, [])
 
   /* ESC close */
 
@@ -101,7 +80,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* slider */
+    /* slider move */
 
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
@@ -113,7 +92,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* pan */
+    /* image pan */
 
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
@@ -131,8 +110,13 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
 
-    if (pointers.current.size < 2) pinchStart.current = 0
-    if (pointers.current.size === 0) mode.current = null
+    if (pointers.current.size < 2) {
+      pinchStart.current = 0
+    }
+
+    if (pointers.current.size === 0) {
+      mode.current = null
+    }
   }
 
   const resetView = () => {
@@ -140,14 +124,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
-  /* ===== 座標変換 ===== */
-  /*
-  const barX = (position / 100) * containerWidth
-  */
-  /* screen → image(transform)座標 */
-  /*
-  const imageX = (barX - offset.x) / scale
-  */
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -185,46 +161,35 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* image area */}
+        {/* image layer */}
 
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* before image */}
+        <div
+          style={{
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+          }}
+          className="relative"
+        >
+          {/* before */}
 
-          <div
-            className="relative will-change-transform"
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-          >
-            <img
-              src={before}
-              className="block max-w-none pointer-events-none"
-              draggable={false}
-            />
-          </div>
+          <img
+            src={before}
+            className="block max-w-none pointer-events-none"
+            draggable={false}
+          />
 
-          {/* after clipped */}
+          {/* after clip */}
 
           <div
-            className="absolute inset-0 overflow-hidden pointer-events-none"
+            className="absolute inset-0 overflow-hidden"
             style={{
               width: `${position}%`,
             }}
           >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="relative will-change-transform"
-                style={{
-                  transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-                }}
-              >
-                <img
-                  src={after}
-                  className="block max-w-none"
-                  draggable={false}
-                />
-              </div>
-            </div>
+            <img
+              src={after}
+              className="absolute inset-0 max-w-none pointer-events-none"
+              draggable={false}
+            />
           </div>
         </div>
 
@@ -232,25 +197,24 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         <div
           className="absolute top-0 bottom-0 w-[2px] bg-white z-20"
-          style={{ left: `${barX}px` }}
+          style={{ left: `${position}%` }}
         />
 
-        {/* slider */}
+        {/* slider hit area */}
 
         <div
+          data-slider="true"
           className="absolute z-30"
           style={{
-            left: `${barX}px`,
+            left: `${position}%`,
             top: 0,
             bottom: 0,
+            width: '100px',
             transform: 'translateX(-50%)',
           }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div
-              data-slider="true"
-              className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg cursor-ew-resize"
-            >
+            <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
               ⇆
             </div>
           </div>
