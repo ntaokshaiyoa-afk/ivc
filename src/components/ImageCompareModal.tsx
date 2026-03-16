@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect } from 'react'
 
 type Props = {
   before: string
@@ -7,7 +7,6 @@ type Props = {
 }
 
 export default function ImageCompareModal({ before, after, onClose }: Props) {
-
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
@@ -15,7 +14,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  const mode = useRef<"image" | "slider" | null>(null)
+  const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
@@ -25,23 +24,22 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+      if (e.key === 'Escape') onClose()
     }
 
-    window.addEventListener("keydown", esc)
-    return () => window.removeEventListener("keydown", esc)
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
   /* pointer down */
 
   const onPointerDown = (e: React.PointerEvent) => {
-
     const target = e.target as HTMLElement
 
     if (target.dataset.slider) {
-      mode.current = "slider"
+      mode.current = 'slider'
     } else {
-      mode.current = "image"
+      mode.current = 'image'
     }
 
     containerRef.current?.setPointerCapture(e.pointerId)
@@ -49,13 +47,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     pointers.current.set(e.pointerId, e.nativeEvent)
 
     last.current = { x: e.clientX, y: e.clientY }
-
   }
 
   /* pointer move */
 
   const onPointerMove = (e: React.PointerEvent) => {
-
     if (!mode.current) return
 
     pointers.current.set(e.pointerId, e.nativeEvent)
@@ -63,7 +59,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     /* pinch zoom */
 
     if (pointers.current.size === 2) {
-
       const [p1, p2] = [...pointers.current.values()]
 
       const dx = p1.clientX - p2.clientX
@@ -78,7 +73,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
       const delta = dist - pinchStart.current
 
-      setScale(s => Math.min(10, Math.max(0.2, s + delta * 0.005)))
+      setScale((s) => Math.min(10, Math.max(0.2, s + delta * 0.005)))
 
       pinchStart.current = dist
 
@@ -87,12 +82,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     /* slider move */
 
-    if (mode.current === "slider") {
-
+    if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
 
-      const percent =
-        ((e.clientX - rect.left) / rect.width) * 100
+      const percent = ((e.clientX - rect.left) / rect.width) * 100
 
       setPosition(Math.min(100, Math.max(0, percent)))
 
@@ -106,17 +99,15 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     last.current = { x: e.clientX, y: e.clientY }
 
-    setOffset(o => ({
+    setOffset((o) => ({
       x: o.x + dx,
-      y: o.y + dy
+      y: o.y + dy,
     }))
-
   }
 
   /* pointer up */
 
   const onPointerUp = (e: React.PointerEvent) => {
-
     pointers.current.delete(e.pointerId)
 
     if (pointers.current.size < 2) {
@@ -126,38 +117,31 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     if (pointers.current.size === 0) {
       mode.current = null
     }
-
   }
 
   const resetView = () => {
-
     setScale(1)
     setOffset({ x: 0, y: 0 })
-
   }
 
   return (
-
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
       onClick={onClose}
     >
-
       <div
         ref={containerRef}
         className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center"
-        style={{ touchAction: "none" }}
+        style={{ touchAction: 'none' }}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
-
           <button
             onClick={resetView}
             className="bg-gray-800 text-white px-3 py-1 rounded text-sm"
@@ -168,7 +152,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
             {(scale * 100).toFixed(0)}%
           </div>
-
         </div>
 
         <button
@@ -182,11 +165,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         <div
           style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
           className="relative"
         >
-
           {/* before */}
 
           <img
@@ -200,18 +182,15 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           <div
             className="absolute inset-0 overflow-hidden"
             style={{
-              width: `${position}%`
+              width: `${position}%`,
             }}
           >
-
             <img
               src={after}
               className="absolute inset-0 max-w-none pointer-events-none"
               draggable={false}
             />
-
           </div>
-
         </div>
 
         {/* divider */}
@@ -230,26 +209,17 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             left: `${position}%`,
             top: 0,
             bottom: 0,
-            width: "100px",
-            transform: "translateX(-50%)"
+            width: '100px',
+            transform: 'translateX(-50%)',
           }}
         >
-
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-
             <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
-
               ⇆
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   )
 }
