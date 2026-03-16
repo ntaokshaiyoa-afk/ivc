@@ -11,6 +11,8 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const [position, setPosition] = useState(50)
 
+  const [containerWidth, setContainerWidth] = useState(0)
+
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
@@ -19,6 +21,19 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
+
+  /* container width */
+
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth)
+      }
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   /* ESC close */
 
@@ -30,8 +45,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     window.addEventListener('keydown', esc)
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
-
-  /* pointer down */
 
   const onPointerDown = (e: React.PointerEvent) => {
     const target = e.target as HTMLElement
@@ -48,8 +61,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     last.current = { x: e.clientX, y: e.clientY }
   }
-
-  /* pointer move */
 
   const onPointerMove = (e: React.PointerEvent) => {
     if (!mode.current) return
@@ -76,23 +87,19 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       setScale((s) => Math.min(10, Math.max(0.2, s + delta * 0.005)))
 
       pinchStart.current = dist
-
       return
     }
 
-    /* slider move */
+    /* slider */
 
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
-
       const percent = ((e.clientX - rect.left) / rect.width) * 100
-
       setPosition(Math.min(100, Math.max(0, percent)))
-
       return
     }
 
-    /* image pan */
+    /* pan */
 
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
@@ -105,24 +112,22 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     }))
   }
 
-  /* pointer up */
-
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
 
-    if (pointers.current.size < 2) {
-      pinchStart.current = 0
-    }
-
-    if (pointers.current.size === 0) {
-      mode.current = null
-    }
+    if (pointers.current.size < 2) pinchStart.current = 0
+    if (pointers.current.size === 0) mode.current = null
   }
 
   const resetView = () => {
     setScale(1)
     setOffset({ x: 0, y: 0 })
   }
+
+  /* ★ここが本質修正 */
+
+  const containerClip = containerWidth * (position / 100)
+  const imageClip = (containerClip - offset.x) / scale
 
   return (
     <div
@@ -161,35 +166,33 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* image layer */}
+        {/* image */}
 
-        <div
-          style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-          }}
-          className="relative"
-        >
-          {/* before */}
-
-          <img
-            src={before}
-            className="block max-w-none pointer-events-none"
-            draggable={false}
-          />
-
-          {/* after clip */}
-
+        <div className="absolute inset-0 flex items-center justify-center">
           <div
-            className="absolute inset-0 overflow-hidden"
+            className="relative will-change-transform"
             style={{
-              width: `${position}%`,
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           >
             <img
-              src={after}
-              className="absolute inset-0 max-w-none pointer-events-none"
+              src={before}
+              className="block max-w-none pointer-events-none"
               draggable={false}
             />
+
+            <div
+              className="absolute top-0 left-0 h-full overflow-hidden pointer-events-none"
+              style={{
+                width: `${Math.max(0, imageClip)}px`,
+              }}
+            >
+              <img
+                src={after}
+                className="block max-w-none"
+                draggable={false}
+              />
+            </div>
           </div>
         </div>
 
@@ -200,21 +203,22 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           style={{ left: `${position}%` }}
         />
 
-        {/* slider hit area */}
+        {/* slider */}
 
         <div
-          data-slider="true"
           className="absolute z-30"
           style={{
             left: `${position}%`,
             top: 0,
             bottom: 0,
-            width: '100px',
             transform: 'translateX(-50%)',
           }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+            <div
+              data-slider="true"
+              className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg cursor-ew-resize"
+            >
               ⇆
             </div>
           </div>
