@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect } from 'react'
 
 type Props = {
   before: string
@@ -7,7 +7,6 @@ type Props = {
 }
 
 export default function ImageCompareModal({ before, after, onClose }: Props) {
-
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
@@ -22,28 +21,26 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+      if (e.key === 'Escape') onClose()
     }
 
-    window.addEventListener("keydown", esc)
-    return () => window.removeEventListener("keydown", esc)
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
   /* zoom */
 
   const handleWheel = (e: React.WheelEvent) => {
-
     e.preventDefault()
 
     const delta = -e.deltaY * 0.0015
 
-    setScale(s => Math.min(10, Math.max(0.2, s + delta)))
+    setScale((s) => Math.min(10, Math.max(0.2, s + delta)))
   }
 
   /* image drag */
 
   const startImageDrag = (e: React.MouseEvent) => {
-
     if (draggingSlider.current) return
 
     draggingImage.current = true
@@ -51,13 +48,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   }
 
   const move = (e: React.MouseEvent) => {
-
     if (draggingSlider.current) {
-
       const rect = containerRef.current!.getBoundingClientRect()
 
-      const percent =
-        ((e.clientX - rect.left) / rect.width) * 100
+      const percent = ((e.clientX - rect.left) / rect.width) * 100
 
       setPosition(Math.min(100, Math.max(0, percent)))
 
@@ -71,27 +65,24 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     last.current = { x: e.clientX, y: e.clientY }
 
-    setOffset(o => ({
+    setOffset((o) => ({
       x: o.x + dx,
-      y: o.y + dy
+      y: o.y + dy,
     }))
   }
 
   const stopDrag = () => {
-
     draggingImage.current = false
     draggingSlider.current = false
   }
 
   const startSlider = (e: React.MouseEvent) => {
-
     e.stopPropagation()
 
     draggingSlider.current = true
   }
 
   const resetView = () => {
-
     setScale(1)
     setOffset({ x: 0, y: 0 })
   }
@@ -101,7 +92,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       className="fixed inset-0 bg-black/85 flex items-center justify-center z-50"
       onClick={onClose}
     >
-
       <div
         ref={containerRef}
         className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center cursor-grab"
@@ -112,11 +102,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onMouseLeave={stopDrag}
         onWheel={handleWheel}
       >
-
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
-
           <button
             onClick={resetView}
             className="bg-gray-800 text-white px-3 py-1 rounded text-sm shadow"
@@ -127,7 +115,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
             {(scale * 100).toFixed(0)}%
           </div>
-
         </div>
 
         <button
@@ -141,11 +128,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         <div
           style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
           className="relative"
         >
-
           <img
             src={before}
             className="block max-w-none pointer-events-none"
@@ -156,11 +142,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             src={after}
             className="absolute inset-0 max-w-none pointer-events-none"
             style={{
-              clipPath: `inset(0 0 0 ${position}%)`
+              clipPath: `inset(0 0 0 ${position}%)`,
             }}
             draggable={false}
           />
-
         </div>
 
         {/* divider */}
@@ -177,21 +162,15 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           className="absolute z-20 cursor-ew-resize"
           style={{
             left: `${position}%`,
-            top: "50%",
-            transform: "translate(-50%, -50%)"
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
         >
-
           <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
-
             ⇆
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   )
 }
