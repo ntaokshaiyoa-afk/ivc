@@ -10,7 +10,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
-
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
@@ -95,7 +94,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       setScale((s) => Math.min(10, Math.max(0.2, s + delta * 0.005)))
 
       pinchStart.current = dist
-
       return
     }
 
@@ -107,7 +105,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       const percent = ((e.clientX - rect.left) / rect.width) * 100
 
       setPosition(Math.min(100, Math.max(0, percent)))
-
       return
     }
 
@@ -141,9 +138,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   /* ===== 座標変換 ===== */
 
   const barX = (position / 100) * containerWidth
-
-  /* screen → image(transform)座標 */
-
   const imageX = (barX - offset.x) / scale
 
   return (
@@ -161,6 +155,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
@@ -183,7 +178,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* ===== transform layer (座標統一) ===== */}
+        {/* transform layer */}
 
         <div
           className="relative will-change-transform"
@@ -191,20 +186,26 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
+
           {/* before */}
 
-          <img src={before} className="block max-w-none" draggable={false} />
+          <img
+            src={before}
+            className="block max-w-none"
+            draggable={false}
+          />
 
           {/* after */}
 
           <img
             src={after}
-            className="absolute inset-0 max-w-none"
+            className="absolute left-0 top-0 max-w-none"
             style={{
-              clipPath: `inset(0 0 0 ${imageX}px)`,
+              clipPath: `inset(0 0 0 ${Math.max(0, imageX)}px)`
             }}
             draggable={false}
           />
+
         </div>
 
         {/* divider */}
@@ -234,6 +235,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   )
