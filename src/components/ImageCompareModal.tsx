@@ -12,21 +12,20 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  const dragging = useRef(false)
+  const draggingImage = useRef(false)
   const last = useRef({ x: 0, y: 0 })
 
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  /* ESCで閉じる */
+  /* ESC close */
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
+
     window.addEventListener('keydown', esc)
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
-  /* ホイールズーム */
+  /* zoom */
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
 
@@ -38,15 +37,15 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     })
   }
 
-  /* パン開始 */
+  /* start pan */
   const handleMouseDown = (e: React.MouseEvent) => {
-    dragging.current = true
+    draggingImage.current = true
     last.current = { x: e.clientX, y: e.clientY }
   }
 
-  /* パン */
+  /* pan */
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragging.current) return
+    if (!draggingImage.current) return
 
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
@@ -60,20 +59,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   }
 
   const stopDrag = () => {
-    dragging.current = false
+    draggingImage.current = false
   }
 
-  /* ダブルクリックズーム */
-  const handleDoubleClick = () => {
-    if (scale === 1) {
-      setScale(2)
-    } else {
-      setScale(1)
-      setOffset({ x: 0, y: 0 })
-    }
-  }
-
-  /* リセット */
   const resetView = () => {
     setScale(1)
     setOffset({ x: 0, y: 0 })
@@ -85,21 +73,20 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        ref={containerRef}
-        className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center"
+        className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center cursor-grab"
         onClick={(e) => e.stopPropagation()}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={stopDrag}
         onMouseLeave={stopDrag}
         onWheel={handleWheel}
-        onDoubleClick={handleDoubleClick}
       >
-        {/* UIバー */}
+        {/* UI bar */}
         <div className="absolute top-4 left-4 flex gap-3 z-10">
+
           <button
             onClick={resetView}
-            className="bg-white/90 px-3 py-1 rounded text-sm"
+            className="bg-gray-800 text-white px-3 py-1 rounded text-sm shadow"
           >
             Reset
           </button>
@@ -109,7 +96,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           </div>
         </div>
 
-        {/* Close */}
+        {/* close */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 bg-black/70 text-white w-10 h-10 rounded-full text-xl"
@@ -117,12 +104,12 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* 画像レイヤー */}
+        {/* image layer */}
         <div
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
-          className="relative transition-transform"
+          className="relative"
         >
           {/* before */}
           <img
@@ -142,11 +129,21 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           />
         </div>
 
-        {/* divider */}
+        {/* divider line */}
         <div
-          className="absolute top-0 bottom-0 w-[2px] bg-white"
+          className="absolute top-0 bottom-0 w-[2px] bg-white z-10"
           style={{ left: `${position}%` }}
         />
+
+        {/* draggable handle */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 z-20"
+          style={{ left: `${position}%` }}
+        >
+          <div className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center shadow cursor-ew-resize">
+            ⇆
+          </div>
+        </div>
 
         {/* slider */}
         <input
