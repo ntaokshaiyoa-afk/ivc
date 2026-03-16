@@ -14,8 +14,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
+  /*
   const [containerWidth, setContainerWidth] = useState(1)
-
+  */
+  
   const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
 
