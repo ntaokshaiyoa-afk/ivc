@@ -171,30 +171,51 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         >
           {/* before image */}
 
-          <img
-            src={before}
-            className="block max-w-none pointer-events-none"
-            draggable={false}
-          />
-        </div>
+          {/* before */}
 
-        {/* after clip layer */}
+<div
+  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+>
+  <div
+    style={{
+      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+    }}
+    className="relative will-change-transform"
+  >
+    <img
+      src={before}
+      className="block max-w-none"
+      draggable={false}
+    />
+  </div>
+</div>
 
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{
-            width: `${position}%`,
-          }}
-        >
-          <div
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-            className="relative"
-          >
-            <img src={after} className="block max-w-none" draggable={false} />
-          </div>
-        </div>
+
+{/* after clip */}
+
+<div
+  className="absolute inset-0 overflow-hidden pointer-events-none"
+  style={{
+    width: `${position}%`,
+  }}
+>
+  <div
+    className="absolute inset-0 flex items-center justify-center"
+  >
+    <div
+      style={{
+        transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+      }}
+      className="relative will-change-transform"
+    >
+      <img
+        src={after}
+        className="block max-w-none"
+        draggable={false}
+      />
+    </div>
+  </div>
+</div>
 
         {/* divider */}
 
