@@ -139,13 +139,13 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   }
 
   /* ===== 座標変換 ===== */
-
+  /*
   const barX = (position / 100) * containerWidth
-
+  */
   /* screen → image(transform)座標 */
-
+  /*
   const imageX = (barX - offset.x) / scale
-
+  */
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
