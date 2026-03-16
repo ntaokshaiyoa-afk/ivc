@@ -166,35 +166,35 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* image area */}
 
-<div
-  className="absolute inset-0 flex items-center justify-center"
-  style={{
-    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-  }}
->
-  {/* before image */}
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+          }}
+        >
+          {/* before image */}
 
-  <img
-    src={before}
-    className="block max-w-none object-contain pointer-events-none"
-    draggable={false}
-  />
+          <img
+            src={before}
+            className="block max-w-none object-contain pointer-events-none"
+            draggable={false}
+          />
 
-  {/* after clipped */}
+          {/* after clipped */}
 
-  <div
-    className="absolute inset-0 overflow-hidden pointer-events-none"
-    style={{
-      width: `${position}%`,
-    }}
-  >
-    <img
-      src={after}
-      className="block max-w-none object-contain"
-      draggable={false}
-    />
-  </div>
-</div>
+          <div
+            className="absolute inset-0 overflow-hidden pointer-events-none"
+            style={{
+              width: `${position}%`,
+            }}
+          >
+            <img
+              src={after}
+              className="block max-w-none object-contain"
+              draggable={false}
+            />
+          </div>
+        </div>
         {/* divider */}
 
         <div
