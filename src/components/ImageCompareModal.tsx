@@ -194,39 +194,31 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           {/* before */}
 
           <div
-  className="absolute inset-0 flex items-center justify-center pointer-events-none"
-  style={{
-    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-  }}
->
-  <img
-    src={before}
-    className="block max-w-none"
-    draggable={false}
-  />
-</div>
-          
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+            }}
+          >
+            <img src={before} className="block max-w-none" draggable={false} />
+          </div>
+
           {/* after */}
 
-<div
-  className="absolute inset-0 overflow-hidden pointer-events-none"
-  style={{
-    width: `${position}%`,
-  }}
->
-  <div
-    className="absolute inset-0 flex items-center justify-center"
-    style={{
-      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-    }}
-  >
-    <img
-      src={after}
-      className="block max-w-none"
-      draggable={false}
-    />
-  </div>
-</div>
+          <div
+            className="absolute inset-0 overflow-hidden pointer-events-none"
+            style={{
+              width: `${position}%`,
+            }}
+          >
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              }}
+            >
+              <img src={after} className="block max-w-none" draggable={false} />
+            </div>
+          </div>
         </div>
 
         {/* divider */}
