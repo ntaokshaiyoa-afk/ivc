@@ -11,12 +11,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const [position, setPosition] = useState(50)
 
+  // ★追加（最小修正）
   const containerWidth = containerRef.current?.clientWidth || 0
   const clipWidth = containerWidth * (position / 100)
-  /* const clipX = (position / 100) * (containerRef.current?.clientWidth || 0)
 
-  const correctedClip = (clipX - offset.x) / scale
-  */
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
@@ -169,11 +167,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* image area */}
 
-        {/* image area */}
-
         <div className="absolute inset-0 flex items-center justify-center">
-          {/* transform layer */}
-
           <div
             className="relative pointer-events-none"
             style={{
@@ -181,11 +175,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             }}
           >
             {/* before */}
-
             <img src={before} className="block max-w-none" draggable={false} />
 
             {/* after */}
-
             <div
               className="absolute left-0 top-0 overflow-hidden"
               style={{ width: `${clipWidth}px` }}
@@ -202,7 +194,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           style={{ left: `${position}%` }}
         />
 
-        {/* slider hit area */}
+        {/* slider */}
 
         <div
           className="absolute z-30"
