@@ -163,31 +163,49 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* image layer */}
 
-        <div
-          className="relative"
-          style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-          }}
-        >
-          {/* before */}
+<div
+  className="relative will-change-transform"
+  style={{
+    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
+  }}
+>
 
-          <img
-            src={before}
-            className="block max-w-none pointer-events-none"
-            draggable={false}
-          />
+  {/* before image */}
 
-          {/* after */}
+  <img
+    src={before}
+    className="block max-w-none pointer-events-none"
+    draggable={false}
+  />
 
-          <img
-            src={after}
-            className="absolute inset-0 max-w-none pointer-events-none"
-            draggable={false}
-            style={{
-              clipPath: `inset(0 ${100 - position}% 0 0)`,
-            }}
-          />
-        </div>
+</div>
+
+{/* after clip layer */}
+
+<div
+  className="absolute inset-0 overflow-hidden pointer-events-none"
+  style={{
+    width: `${position}%`
+  }}
+>
+
+  <div
+    style={{
+      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
+    }}
+    className="relative"
+  >
+
+    <img
+      src={after}
+      className="block max-w-none"
+      draggable={false}
+    />
+
+  </div>
+
+</div>
+        
         {/* divider */}
 
         <div
