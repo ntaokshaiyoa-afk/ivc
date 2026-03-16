@@ -203,6 +203,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     />
   </div>
 </div>
+        </div>
 
         {/* divider */}
 
