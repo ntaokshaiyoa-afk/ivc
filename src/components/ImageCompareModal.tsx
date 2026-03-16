@@ -163,33 +163,31 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* image layer */}
 
-<div
-  className="relative"
-  style={{
-    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
-  }}
->
+        <div
+          className="relative"
+          style={{
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+          }}
+        >
+          {/* before */}
 
-  {/* before */}
+          <img
+            src={before}
+            className="block max-w-none pointer-events-none"
+            draggable={false}
+          />
 
-  <img
-    src={before}
-    className="block max-w-none pointer-events-none"
-    draggable={false}
-  />
+          {/* after */}
 
-  {/* after */}
-
-  <img
-    src={after}
-    className="absolute inset-0 max-w-none pointer-events-none"
-    draggable={false}
-    style={{
-      clipPath: `inset(0 ${100 - position}% 0 0)`
-    }}
-  />
-
-</div>
+          <img
+            src={after}
+            className="absolute inset-0 max-w-none pointer-events-none"
+            draggable={false}
+            style={{
+              clipPath: `inset(0 ${100 - position}% 0 0)`,
+            }}
+          />
+        </div>
         {/* divider */}
 
         <div
@@ -199,22 +197,22 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* slider hit area */}
 
-<div
-  className="absolute z-30"
-  style={{
-    left: `${position}%`,
-    top: 0,
-    bottom: 0,
-    transform: "translateX(-50%)"
-  }}
->
+        <div
+          className="absolute z-30"
+          style={{
+            left: `${position}%`,
+            top: 0,
+            bottom: 0,
+            transform: 'translateX(-50%)',
+          }}
+        >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-<div
-  data-slider="true"
-  className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg cursor-ew-resize"
->
-  ⇆
-</div>
+            <div
+              data-slider="true"
+              className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg cursor-ew-resize"
+            >
+              ⇆
+            </div>
           </div>
         </div>
       </div>
