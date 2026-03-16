@@ -161,51 +161,49 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-{/* image area */}
+        {/* image area */}
 
-<div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* before image */}
 
-  {/* before image */}
+          <div
+            className="relative will-change-transform"
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+            }}
+          >
+            <img
+              src={before}
+              className="block max-w-none pointer-events-none"
+              draggable={false}
+            />
+          </div>
 
-  <div
-    className="relative will-change-transform"
-    style={{
-      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-    }}
-  >
-    <img
-      src={before}
-      className="block max-w-none pointer-events-none"
-      draggable={false}
-    />
-  </div>
+          {/* after clipped */}
 
-  {/* after clipped */}
+          <div
+            className="absolute inset-0 overflow-hidden pointer-events-none"
+            style={{
+              width: `${position}%`,
+            }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="relative will-change-transform"
+                style={{
+                  transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                }}
+              >
+                <img
+                  src={after}
+                  className="block max-w-none"
+                  draggable={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <div
-    className="absolute inset-0 overflow-hidden pointer-events-none"
-    style={{
-      width: `${position}%`,
-    }}
-  >
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div
-        className="relative will-change-transform"
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-        }}
-      >
-        <img
-          src={after}
-          className="block max-w-none"
-          draggable={false}
-        />
-      </div>
-    </div>
-  </div>
-
-</div>
-        
         {/* divider */}
 
         <div
