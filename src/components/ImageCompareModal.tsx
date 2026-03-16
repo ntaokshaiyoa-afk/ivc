@@ -155,7 +155,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-
         {/* UI */}
 
         <div className="absolute top-4 left-4 flex gap-3 z-20">
@@ -186,14 +185,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
-
           {/* before */}
 
-          <img
-            src={before}
-            className="block max-w-none"
-            draggable={false}
-          />
+          <img src={before} className="block max-w-none" draggable={false} />
 
           {/* after */}
 
@@ -201,11 +195,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             src={after}
             className="absolute left-0 top-0 max-w-none"
             style={{
-              clipPath: `inset(0 0 0 ${Math.max(0, imageX)}px)`
+              clipPath: `inset(0 0 0 ${Math.max(0, imageX)}px)`,
             }}
             draggable={false}
           />
-
         </div>
 
         {/* divider */}
@@ -235,7 +228,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )
