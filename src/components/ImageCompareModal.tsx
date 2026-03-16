@@ -19,56 +19,47 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const last = useRef({ x: 0, y: 0 })
 
-  const pointerMode = useRef<"image" | "slider" | null>(null)
+  const pointerMode = useRef<'image' | 'slider' | null>(null)
 
   const onPointerDown = (e: React.PointerEvent) => {
+    const target = e.target as HTMLElement
 
-  const target = e.target as HTMLElement
+    if (target.dataset.slider === 'true') {
+      pointerMode.current = 'slider'
+    } else {
+      pointerMode.current = 'image'
+    }
 
-  if (target.dataset.slider === "true") {
-    pointerMode.current = "slider"
-  } else {
-    pointerMode.current = "image"
+    last.current = { x: e.clientX, y: e.clientY }
   }
-
-  last.current = { x: e.clientX, y: e.clientY }
-
-}
 
   const onPointerMove = (e: React.PointerEvent) => {
+    if (!pointerMode.current) return
 
-  if (!pointerMode.current) return
+    if (pointerMode.current === 'slider') {
+      const rect = containerRef.current!.getBoundingClientRect()
 
-  if (pointerMode.current === "slider") {
+      const percent = ((e.clientX - rect.left) / rect.width) * 100
 
-    const rect = containerRef.current!.getBoundingClientRect()
+      setPosition(Math.min(100, Math.max(0, percent)))
 
-    const percent =
-      ((e.clientX - rect.left) / rect.width) * 100
+      return
+    }
 
-    setPosition(Math.min(100, Math.max(0, percent)))
+    const dx = e.clientX - last.current.x
+    const dy = e.clientY - last.current.y
 
-    return
+    last.current = { x: e.clientX, y: e.clientY }
+
+    setOffset((o) => ({
+      x: o.x + dx,
+      y: o.y + dy,
+    }))
   }
 
-  const dx = e.clientX - last.current.x
-  const dy = e.clientY - last.current.y
-
-  last.current = { x: e.clientX, y: e.clientY }
-
-  setOffset(o => ({
-    x: o.x + dx,
-    y: o.y + dy
-  }))
-
-}
-
   const onPointerUp = () => {
-  pointerMode.current = null
-}
-  
-
-  
+    pointerMode.current = null
+  }
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
@@ -147,9 +138,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         ref={containerRef}
         className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center cursor-grab"
         onClick={(e) => e.stopPropagation()}
-onPointerDown={onPointerDown}
-onPointerMove={onPointerMove}
-onPointerUp={onPointerUp}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
         onMouseLeave={stopDrag}
         onWheel={handleWheel}
       >
@@ -208,15 +199,15 @@ onPointerUp={onPointerUp}
 
         {/* slider handle */}
 
-<div
-  data-slider="true"
-  className="absolute z-20 cursor-ew-resize"
-  style={{
-    left: `${position}%`,
-    top: "50%",
-    transform: "translate(-50%, -50%)"
-  }}
->
+        <div
+          data-slider="true"
+          className="absolute z-20 cursor-ew-resize"
+          style={{
+            left: `${position}%`,
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
           <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
             ⇆
           </div>
