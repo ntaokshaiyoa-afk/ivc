@@ -49,17 +49,23 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     /* double tap */
 
-    const now = Date.now()
+/* double tap */
 
-    if (now - lastTap.current < 300) {
-      setScale((s) => (s === 1 ? 2 : 1))
+if (pointers.current.size === 1) {
 
-      if (scale !== 1) {
-        setOffset({ x: 0, y: 0 })
-      }
+  const now = Date.now()
+
+  if (now - lastTap.current < 300) {
+
+    setScale(s => (s === 1 ? 2 : 1))
+
+    if (scale !== 1) {
+      setOffset({ x: 0, y: 0 })
     }
+  }
 
-    lastTap.current = now
+  lastTap.current = now
+}
   }
 
   /* pointer move */
@@ -168,27 +174,28 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* image */}
 
-        <div
-          style={{
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-          }}
-          className="relative"
-        >
-          <img
-            src={before}
-            className="block max-w-none pointer-events-none"
-            draggable={false}
-          />
+{/* before */}
 
-          <img
-            src={after}
-            className="absolute inset-0 max-w-none pointer-events-none"
-            style={{
-              clipPath: `inset(0 0 0 ${position}%)`,
-            }}
-            draggable={false}
-          />
-        </div>
+<img
+  src={before}
+  className="block max-w-none pointer-events-none"
+/>
+
+{/* after clip */}
+
+<div
+  className="absolute inset-0 overflow-hidden"
+  style={{
+    width: `${position}%`
+  }}
+>
+
+  <img
+    src={after}
+    className="absolute inset-0 max-w-none pointer-events-none"
+  />
+
+</div>
 
         {/* divider */}
 
@@ -199,18 +206,24 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* slider handle */}
 
-        <div
-          data-slider="true"
-          className="absolute z-20 cursor-ew-resize"
-          style={{
-            left: `${position}%`,
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
-            ⇆
-          </div>
+<div
+  data-slider="true"
+  className="absolute z-20"
+  style={{
+    left: `${position}%`,
+    top: "0",
+    bottom: "0",
+    width: "80px",
+    transform: "translateX(-50%)",
+  }}
+>
+<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+
+  <div className="bg-white text-black rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+    ⇆
+  </div>
+
+</div>
         </div>
       </div>
     </div>
