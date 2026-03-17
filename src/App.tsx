@@ -155,15 +155,18 @@ export default function App() {
     [enqueueLatest, compressOne],
   )
 
-  const onChangeSettings = useCallback((jobId: string, patch: Record<string, any>) => {
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === jobId
-          ? { ...j, settings: { ...j.settings, ...patch }, status: 'waiting' }
-          : j,
-      ),
-    )
-  }, [])
+  const onChangeSettings = useCallback(
+    (jobId: string, patch: Record<string, any>) => {
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === jobId
+            ? { ...j, settings: { ...j.settings, ...patch }, status: 'waiting' }
+            : j,
+        ),
+      )
+    },
+    [],
+  )
 
   const compressAll = async () => {
     setIsProcessing(true)
@@ -295,7 +298,8 @@ export default function App() {
           </div>
 
           <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
-            総サイズ：{formatSize(totalOriginal)} → {formatSize(totalCompressed)}
+            総サイズ：{formatSize(totalOriginal)} →{' '}
+            {formatSize(totalCompressed)}
             <span className="font-semibold text-green-600">
               -{formatSize(totalSaved)}
             </span>

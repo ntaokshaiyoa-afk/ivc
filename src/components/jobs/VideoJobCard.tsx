@@ -34,7 +34,9 @@ export function VideoJobCard({
           className="p-2 rounded border"
         >
           {VIDEO_CODECS.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
           ))}
         </select>
 
@@ -45,7 +47,9 @@ export function VideoJobCard({
             max={40}
             step={1}
             value={quality}
-            onChange={(e) => onChangeSettings(job.id, { quality: Number(e.target.value) })}
+            onChange={(e) =>
+              onChangeSettings(job.id, { quality: Number(e.target.value) })
+            }
             className="w-full"
           />
           <span className="text-sm w-12 text-right">{quality}</span>
@@ -76,7 +80,10 @@ export function VideoJobCard({
       </p>
 
       <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
-        <div className="h-full bg-blue-500 transition-all" style={{ width: `${job.progress}%` }} />
+        <div
+          className="h-full bg-blue-500 transition-all"
+          style={{ width: `${job.progress}%` }}
+        />
       </div>
 
       {afterUrl ? (
@@ -85,7 +92,9 @@ export function VideoJobCard({
         <video src={beforeUrl} controls className="w-full rounded-xl" />
       )}
 
-      {job.status === 'error' && <p className="mt-4 text-red-600">{job.error}</p>}
+      {job.status === 'error' && (
+        <p className="mt-4 text-red-600">{job.error}</p>
+      )}
     </div>
   )
 }

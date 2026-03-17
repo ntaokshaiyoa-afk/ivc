@@ -8,7 +8,11 @@ let activeWorker: Worker | null = null
 let activeReject: ((reason?: any) => void) | null = null
 let seq = 0
 
-export async function compressImageInWorker(file: File, quality: number, codec: string) {
+export async function compressImageInWorker(
+  file: File,
+  quality: number,
+  codec: string,
+) {
   // 前回が走っていたら止める（= 並列を作らない）
   if (activeWorker) {
     try {
