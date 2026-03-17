@@ -19,7 +19,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
-
   const lastTap = useRef(0)
 
   /* ---------- lifecycle ---------- */
@@ -41,12 +40,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       velocity.current.x *= 0.95
       velocity.current.y *= 0.95
 
-      if (
-        Math.abs(velocity.current.x) < 0.1 &&
-        Math.abs(velocity.current.y) < 0.1
-      ) {
-        return
-      }
+      if (Math.abs(velocity.current.x) < 0.1 && Math.abs(velocity.current.y) < 0.1) return
 
       setOffset((o) => ({
         x: o.x + velocity.current.x,
@@ -63,7 +57,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     return () => cancelAnimationFrame(raf)
   }, [mode.current])
 
-  /* ---------- pointer ---------- */
+  /* ---------- helpers ---------- */
 
   const getRelativePoint = (clientX: number, clientY: number) => {
     const rect = containerRef.current!.getBoundingClientRect()
@@ -72,6 +66,8 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       y: clientY - rect.top - rect.height / 2,
     }
   }
+
+  /* ---------- pointer ---------- */
 
   const onPointerDown = (e: React.PointerEvent) => {
     const now = Date.now()
@@ -109,7 +105,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     pointers.current.set(e.pointerId, e.nativeEvent)
 
-    // pinch zoom（指中心固定）
+    // pinch
     if (pointers.current.size === 2) {
       const [p1, p2] = [...pointers.current.values()]
 
@@ -159,7 +155,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     const dy = e.clientY - last.current.y
 
     last.current = { x: e.clientX, y: e.clientY }
-
     velocity.current = { x: dx, y: dy }
 
     setOffset((o) => ({
@@ -183,10 +178,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   /* ---------- render ---------- */
 
   return (
-    <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={onClose}>
       <div
         ref={containerRef}
         className="relative w-[90vw] h-[90vh] overflow-hidden select-none"
@@ -197,68 +189,32 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        {/* UI */}
-        <div className="absolute top-4 left-4 flex gap-3 z-20">
-          <button
-            onClick={resetView}
-            className="bg-gray-800 text-white px-3 py-1 rounded text-sm"
-          >
-            Reset
-          </button>
-          <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
-            {(scale * 100).toFixed(0)}%
-          </div>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 bg-black/70 text-white w-10 h-10 rounded-full text-xl z-30"
-        >
-          ✕
-        </button>
-
-        {/* AFTER（左側に変更） */}
+        {/* BEFORE（左側） */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
           <div className="flex items-center justify-center h-full w-full">
-            <div
-              style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-              }}
-            >
-              <img src={after} className="block max-w-none" draggable={false} />
+            <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+              <img src={before} className="block max-w-none" draggable={false} />
             </div>
           </div>
         </div>
 
-        {/* BEFORE（右側） */}
+        {/* AFTER（右側） */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-          >
-            <img src={before} className="block max-w-none" draggable={false} />
+          <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+            <img src={after} className="block max-w-none" draggable={false} />
           </div>
         </div>
 
         {/* divider */}
-        <div
-          className="absolute top-0 bottom-0 w-[2px] bg-white z-20"
-          style={{ left: `${position}%` }}
-        />
+        <div className="absolute top-0 bottom-0 w-[2px] bg-white z-20" style={{ left: `${position}%` }} />
 
         {/* slider */}
         <div
           className="absolute z-30"
-          style={{
-            left: `${position}%`,
-            top: 0,
-            bottom: 0,
-            transform: 'translateX(-50%)',
-          }}
+          style={{ left: `${position}%`, top: 0, bottom: 0, transform: 'translateX(-50%)' }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div
