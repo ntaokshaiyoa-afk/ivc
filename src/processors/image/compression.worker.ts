@@ -5,7 +5,7 @@ import { encode as encodeAVIF } from '@jsquash/avif'
 import { encode as encodePng } from '@jsquash/png'
 
 // optimisePng を使っているならそれも
-import { optimise } from '@jsquash/oxiPng' // ←あなたの実装の実パスに合わせる
+import { optimise } from '@jsquash/oxipng' // ←あなたの実装の実パスに合わせる
 
 self.onmessage = async (e) => {
   try {
