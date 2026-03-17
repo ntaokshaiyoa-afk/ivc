@@ -49,11 +49,16 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: pnpm
-
+      
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+      
+      # pnpm が入った後に cache: pnpm を使う
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
 
       # -----------------------------
       # pnpm migration check
