@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   changes:
+    # format等のコミットで [skip ci] が付いているならCIを走らせない
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
     outputs:
       build_required: ${{ steps.filter.outputs.build }}
@@ -39,6 +41,9 @@ jobs:
 
   build:
     needs: changes
+    # push(main) でビルド不要なら job ごとスキップ（高速化）
+    # PR は一旦常に回す（方針次第で変えてOK）
+    if: needs.changes.outputs.build_required == 'true' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -49,12 +54,12 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      
+
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      
-      # pnpm が入った後に cache: pnpm を使う
+
+      # pnpm が入った後に cache: pnpm
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -86,6 +91,7 @@ jobs:
 
       # -----------------------------
       # Commit pnpm migration
+      # （lock だけ作って push したら、以後は次のrunに任せる方が無駄が少ない）
       # -----------------------------
       - name: Commit pnpm migration
         if: steps.pnpmcheck.outputs.pnpm_ready == 'false' && github.event_name == 'push'
@@ -94,30 +100,21 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add pnpm-lock.yaml
-          git commit -m "auto migrate to pnpm" || exit 0
+          git commit -m "auto migrate to pnpm [skip ci]" || exit 0
           git push
 
-      # pnpm store cache（setup-node cache と併用で効きやすく）
-      - name: Get pnpm store path
-        id: pnpm-store
+      - name: Stop this run after migration commit
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'false' && github.event_name == 'push'
         shell: bash
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-store-${{ runner.os }}-
+        run: exit 0
 
       # -----------------------------
-      # Install dependencies
+      # Install dependencies (faster)
       # -----------------------------
       - name: Install dependencies
         shell: bash
-        run: |
-          # package.jsonが変わってないなら frozen を優先（失敗しにくい&速い）
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
+        # --ignore-scripts も速いが、壊れるプロジェクトがあるので一旦外してます
 
       # -----------------------------
       # Lint / Typecheck
