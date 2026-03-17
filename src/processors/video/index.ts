@@ -8,7 +8,10 @@ export const videoProcessor: Processor = {
   accepts: (file) => file.type.startsWith('video/'),
   getDefaultSettings: () => ({ codec: 'h264', quality: 28 }), // CRF相当
   process: async (file, settings, ctx) => {
-    const { codec, quality } = settings as { codec: 'h264' | 'vp9' | 'av1'; quality: number }
+    const { codec, quality } = settings as {
+      codec: 'h264' | 'vp9' | 'av1'
+      quality: number
+    }
     ctx.onProgress?.(0)
     const out = await compressVideo(file, codec, quality, ctx.onProgress)
     ctx.onProgress?.(100)

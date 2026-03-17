@@ -14,7 +14,9 @@ export async function initFFmpeg(onProgress?: (progress: number) => void) {
   })
 
   if (onProgress) {
-    ffmpeg.on('progress', ({ progress }) => onProgress(Math.floor(progress * 100)))
+    ffmpeg.on('progress', ({ progress }) =>
+      onProgress(Math.floor(progress * 100)),
+    )
   }
 
   const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm'
@@ -43,10 +45,14 @@ export async function compressVideo(
   const vfScale = `scale='min(${maxWidth},iw)':-2`
 
   const commonVideo = [
-    '-vf', vfScale,
-    '-r', '30',              // 30fps上限（必要なら 24）
-    '-pix_fmt', 'yuv420p',
-    '-movflags', '+faststart'
+    '-vf',
+    vfScale,
+    '-r',
+    '30', // 30fps上限（必要なら 24）
+    '-pix_fmt',
+    'yuv420p',
+    '-movflags',
+    '+faststart',
   ]
   const commonAudioAac = ['-c:a', 'aac', '-b:a', '96k']
   const commonAudioOpus = ['-c:a', 'libopus', '-b:a', '96k']
@@ -58,9 +64,12 @@ export async function compressVideo(
   if (codec === 'h264') {
     args = [
       ...commonVideo,
-      '-c:v', 'libx264',
-      '-preset', 'veryfast',
-      '-crf', String(q),
+      '-c:v',
+      'libx264',
+      '-preset',
+      'veryfast',
+      '-crf',
+      String(q),
       ...commonAudioAac,
     ]
     outExt = 'mp4'
@@ -68,17 +77,27 @@ export async function compressVideo(
   }
 
   if (codec === 'vp9') {
-    throw new Error("この環境の ffmpeg-core は VP9 非対応です。別のコーデックを選んでください。")
+    throw new Error(
+      'この環境の ffmpeg-core は VP9 非対応です。別のコーデックを選んでください。',
+    )
     args = [
       ...commonVideo,
-      '-c:v', 'libvpx-vp9',
-      '-b:v', '0',
-      '-crf', String(q),
-      '-deadline', 'realtime',
-      '-speed', '8',
-      '-cpu-used', '8',
-      '-row-mt', '1',
-      '-tile-columns', '2',
+      '-c:v',
+      'libvpx-vp9',
+      '-b:v',
+      '0',
+      '-crf',
+      String(q),
+      '-deadline',
+      'realtime',
+      '-speed',
+      '8',
+      '-cpu-used',
+      '8',
+      '-row-mt',
+      '1',
+      '-tile-columns',
+      '2',
       ...commonAudioOpus,
     ]
     outExt = 'webm'
@@ -86,15 +105,23 @@ export async function compressVideo(
   }
 
   if (codec === 'av1') {
-    throw new Error("この環境の ffmpeg-core は AV1(lib aom) 非対応です。別のコーデックを選んでください。")
+    throw new Error(
+      'この環境の ffmpeg-core は AV1(lib aom) 非対応です。別のコーデックを選んでください。',
+    )
     args = [
       ...commonVideo,
-      '-c:v', 'libaom-av1',
-      '-b:v', '0',
-      '-crf', String(q),
-      '-cpu-used', '8',
-      '-row-mt', '1',
-      '-g', '240',
+      '-c:v',
+      'libaom-av1',
+      '-b:v',
+      '0',
+      '-crf',
+      String(q),
+      '-cpu-used',
+      '8',
+      '-row-mt',
+      '1',
+      '-g',
+      '240',
       ...commonAudioAac,
     ]
     outExt = 'mp4'
@@ -107,6 +134,7 @@ export async function compressVideo(
 
   try {
     // 既存削除（あってもなくてもOK）
+<<<<<<< HEAD
     try { 
       await ffmpeg.deleteFile(inFile) 
     } 
@@ -121,6 +149,14 @@ export async function compressVideo(
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
       console.debug('ffmpeg.deleteFile ignored:', outFile, err)
     }
+=======
+    try {
+      await ffmpeg.deleteFile(inFile)
+    } catch {}
+    try {
+      await ffmpeg.deleteFile(outFile)
+    } catch {}
+>>>>>>> 1db1432548b2bda74ea97b1691c1601d833cf91c
 
     await ffmpeg.writeFile(inFile, new Uint8Array(await file.arrayBuffer()))
     try {
@@ -133,8 +169,11 @@ export async function compressVideo(
     const data = await ffmpeg.readFile(outFile) // Uint8Array
     const blob = new Blob([data], { type: outMime })
 
-    return new File([blob], file.name.replace(/\.[^/.]+$/, `.${outExt}`), { type: outMime })
+    return new File([blob], file.name.replace(/\.[^/.]+$/, `.${outExt}`), {
+      type: outMime,
+    })
   } finally {
+<<<<<<< HEAD
     try { 
       await ffmpeg.deleteFile(inFile) 
     } catch (err) {
@@ -147,6 +186,13 @@ export async function compressVideo(
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
       console.debug('ffmpeg.deleteFile ignored:', outFile, err)
     }
+=======
+    try {
+      await ffmpeg.deleteFile(inFile)
+    } catch {}
+    try {
+      await ffmpeg.deleteFile(outFile)
+    } catch {}
+>>>>>>> 1db1432548b2bda74ea97b1691c1601d833cf91c
   }
 }
-

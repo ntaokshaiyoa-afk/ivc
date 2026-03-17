@@ -33,7 +33,10 @@ export function ImageJobCard({
   const quality = (job.settings.quality as number) ?? 0.7
 
   // settings の “内容” が変わったら debounce で再圧縮要求
-  const settingsKey = useMemo(() => JSON.stringify({ codec, quality }), [codec, quality])
+  const settingsKey = useMemo(
+    () => JSON.stringify({ codec, quality }),
+    [codec, quality],
+  )
 
   const debounceRef = useRef<number | null>(null)
   useEffect(() => {
@@ -85,7 +88,9 @@ export function ImageJobCard({
             max="1"
             step="0.05"
             value={quality}
-            onChange={(e) => onChangeSettings(job.id, { quality: Number(e.target.value) })}
+            onChange={(e) =>
+              onChangeSettings(job.id, { quality: Number(e.target.value) })
+            }
             className="w-full"
           />
           <span className="text-sm w-12 text-right">{quality.toFixed(2)}</span>
@@ -118,7 +123,9 @@ export function ImageJobCard({
         <img src={beforeUrl} className="w-full rounded-xl" />
       )}
 
-      {job.status === 'error' && <p className="mt-4 text-red-600">{job.error}</p>}
+      {job.status === 'error' && (
+        <p className="mt-4 text-red-600">{job.error}</p>
+      )}
     </div>
   )
 }

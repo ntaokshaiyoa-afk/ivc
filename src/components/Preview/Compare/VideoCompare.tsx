@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react'
 
-export function VideoCompare({ before, after }: { before: string; after: string }) {
+export function VideoCompare({
+  before,
+  after,
+}: {
+  before: string
+  after: string
+}) {
   const beforeRef = useRef<HTMLVideoElement>(null)
   const afterRef = useRef<HTMLVideoElement>(null)
 
@@ -9,9 +15,13 @@ export function VideoCompare({ before, after }: { before: string; after: string 
   const withGuard = (fn: () => void) => {
     if (syncingRef.current) return
     syncingRef.current = true
-    try { fn() } finally {
+    try {
+      fn()
+    } finally {
       // 同期起因のイベント連鎖を1tick抑制
-      queueMicrotask(() => { syncingRef.current = false })
+      queueMicrotask(() => {
+        syncingRef.current = false
+      })
     }
   }
 
@@ -26,15 +36,31 @@ export function VideoCompare({ before, after }: { before: string; after: string 
     const b = afterRef.current
     if (!a || !b) return
 
-    const onPlayA = () => withGuard(() => { if (b.paused) b.play() })
-    const onPauseA = () => withGuard(() => { if (!b.paused) b.pause() })
+    const onPlayA = () =>
+      withGuard(() => {
+        if (b.paused) b.play()
+      })
+    const onPauseA = () =>
+      withGuard(() => {
+        if (!b.paused) b.pause()
+      })
     const onSeekA = () => withGuard(() => syncTimeFromTo(a, b))
-    const onTimeA = () => { if (!a.paused) syncTimeFromTo(a, b) }
+    const onTimeA = () => {
+      if (!a.paused) syncTimeFromTo(a, b)
+    }
 
-    const onPlayB = () => withGuard(() => { if (a.paused) a.play() })
-    const onPauseB = () => withGuard(() => { if (!a.paused) a.pause() })
+    const onPlayB = () =>
+      withGuard(() => {
+        if (a.paused) a.play()
+      })
+    const onPauseB = () =>
+      withGuard(() => {
+        if (!a.paused) a.pause()
+      })
     const onSeekB = () => withGuard(() => syncTimeFromTo(b, a))
-    const onTimeB = () => { if (!b.paused) syncTimeFromTo(b, a) }
+    const onTimeB = () => {
+      if (!b.paused) syncTimeFromTo(b, a)
+    }
 
     a.addEventListener('play', onPlayA)
     a.addEventListener('pause', onPauseA)
@@ -61,8 +87,20 @@ export function VideoCompare({ before, after }: { before: string; after: string 
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
-      <video ref={beforeRef} src={before} controls className="w-full rounded-xl" playsInline />
-      <video ref={afterRef} src={after} controls className="w-full rounded-xl" playsInline />
+      <video
+        ref={beforeRef}
+        src={before}
+        controls
+        className="w-full rounded-xl"
+        playsInline
+      />
+      <video
+        ref={afterRef}
+        src={after}
+        controls
+        className="w-full rounded-xl"
+        playsInline
+      />
     </div>
   )
 }
