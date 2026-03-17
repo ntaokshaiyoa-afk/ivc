@@ -14,7 +14,7 @@ export function VideoJobCard({
   onRecompress,
 }: {
   job: Job
-  onChangeSettings: (jobId: string, patch: Record<string, any>) => void
+  onChangeSettings: (jobId: string, patch: Record<string, unknown>) => void
   onRecompress: (job: Job) => void
 }) {
   const firstOut = job.outputs?.[0]

@@ -3,7 +3,7 @@ import JSZip from 'jszip'
 
 import type { Job } from '@/domain/job/types'
 import { detectProcessor, getProcessorById } from '@/domain/processor/detect'
-import { calcReduction, formatSize } from '@/shared/utils/format'
+import { formatSize } from '@/shared/utils/format'
 
 import ImageCompareModal from '@/components/Preview/Compare/ImageCompareModal'
 import { JobCard } from '@/components/jobs/JobCard'
@@ -155,7 +155,7 @@ export default function App() {
     [enqueueLatest, compressOne],
   )
 
-  const onChangeSettings = useCallback((jobId: string, patch: Record<string, any>) => {
+  const onChangeSettings = useCallback((jobId: string, patch: Record<string, unknown>) => {
     setJobs((prev) =>
       prev.map((j) =>
         j.id === jobId

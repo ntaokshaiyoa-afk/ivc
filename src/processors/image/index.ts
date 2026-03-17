@@ -19,9 +19,10 @@ export const imageProcessor: Processor = {
             const ext = codec === 'webp-lossless' ? 'webp' : codec
             const outName = file.name.replace(/\.\w+$/, `.${ext}`)
             return { outputs: [{ name: outName, blob, mime: blob.type }] }
-        } catch (e: any) {
+        } catch (e: unknown) {
             // キャンセルはエラー扱いしない（必要なら進捗も戻す）
-            if (e?.name === 'AbortError') return { outputs: [] }
+            if (e instanceof DOMException && e.name === 'AbortError') return { outputs: [] }
+            if (e instanceof Error && e.name === 'AbortError') return { outputs: [] } // 念のため
             throw e
         }
     },

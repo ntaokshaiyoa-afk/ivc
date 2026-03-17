@@ -4,7 +4,7 @@ import { VideoJobCard } from './VideoJobCard'
 
 type Props = {
   job: Job
-  onChangeSettings: (jobId: string, patch: Record<string, any>) => void
+  onChangeSettings: (jobId: string, patch: Record<string, unknown>) => void
   onRecompress: (jobId: string) => void
   onRecompressLatest: (jobId: string) => void
   onOpenImageModal: (before: string, after: string) => void

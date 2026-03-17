@@ -107,8 +107,20 @@ export async function compressVideo(
 
   try {
     // 既存削除（あってもなくてもOK）
-    try { await ffmpeg.deleteFile(inFile) } catch {}
-    try { await ffmpeg.deleteFile(outFile) } catch {}
+    try { 
+      await ffmpeg.deleteFile(inFile) 
+    } 
+    catch (err) {
+      // 削除対象が存在しない等は無視する（eslint no-empty 対応）
+      console.debug('ffmpeg.deleteFile ignored:', inFile, err)
+    }
+
+    try { 
+      await ffmpeg.deleteFile(outFile)
+    } catch (err) {
+      // 削除対象が存在しない等は無視する（eslint no-empty 対応）
+      console.debug('ffmpeg.deleteFile ignored:', outFile, err)
+    }
 
     await ffmpeg.writeFile(inFile, new Uint8Array(await file.arrayBuffer()))
     try {
@@ -123,8 +135,18 @@ export async function compressVideo(
 
     return new File([blob], file.name.replace(/\.[^/.]+$/, `.${outExt}`), { type: outMime })
   } finally {
-    try { await ffmpeg.deleteFile(inFile) } catch {}
-    try { await ffmpeg.deleteFile(outFile) } catch {}
+    try { 
+      await ffmpeg.deleteFile(inFile) 
+    } catch (err) {
+      // 削除対象が存在しない等は無視する（eslint no-empty 対応）
+      console.debug('ffmpeg.deleteFile ignored:', inFile, err)
+    }
+    try { 
+      await ffmpeg.deleteFile(outFile) 
+    } catch (err) {
+      // 削除対象が存在しない等は無視する（eslint no-empty 対応）
+      console.debug('ffmpeg.deleteFile ignored:', outFile, err)
+    }
   }
 }
 

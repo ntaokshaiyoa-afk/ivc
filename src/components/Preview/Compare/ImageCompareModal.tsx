@@ -58,7 +58,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     }
 
     el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel as any)
+    return () => el.removeEventListener('wheel', onWheel)
   }, [])
   /* ついでに（任意）モーダル表示中の背景スクロールも止めたい場合 */
   useEffect(() => {

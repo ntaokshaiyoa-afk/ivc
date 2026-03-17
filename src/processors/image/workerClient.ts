@@ -5,15 +5,17 @@ type WorkerErr = { ok: false; error: string }
 type WorkerMsg = WorkerOk | WorkerErr
 
 let activeWorker: Worker | null = null
-let activeReject: ((reason?: any) => void) | null = null
+let activeReject: ((reason?: unknown) => void) | null = null
 let seq = 0
 
 export async function compressImageInWorker(file: File, quality: number, codec: string) {
   // 前回が走っていたら止める（= 並列を作らない）
   if (activeWorker) {
     try {
-      activeWorker.terminate()
-    } catch {}
+    activeWorker.terminate()
+    } catch (err) {
+    console.debug('worker terminate ignored', err)
+    }
     activeWorker = null
     activeReject?.(new DOMException('Cancelled', 'AbortError'))
     activeReject = null
@@ -46,11 +48,13 @@ export async function compressImageInWorker(file: File, quality: number, codec: 
     worker.postMessage({ file, quality, codec })
   })
 
-  function cleanup() {
+    function cleanup() {
     try {
-      worker.terminate()
-    } catch {}
+        worker.terminate()
+    } catch (err) {
+        console.debug('worker terminate ignored', err)
+    }
     if (activeWorker === worker) activeWorker = null
     if (activeReject) activeReject = null
-  }
+    }
 }

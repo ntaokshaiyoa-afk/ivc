@@ -13,7 +13,7 @@ const IMAGE_CODECS = [
 
 type Props = {
   job: Job
-  onChangeSettings: (jobId: string, patch: Record<string, any>) => void
+  onChangeSettings: (jobId: string, patch: Record<string, unknown>) => void
   onRecompressLatest: (jobId: string) => void
   onOpenImageModal: (before: string, after: string) => void
 }
