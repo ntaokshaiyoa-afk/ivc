@@ -41,7 +41,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       velocity.current.x *= 0.95
       velocity.current.y *= 0.95
 
-      if (Math.abs(velocity.current.x) < 0.1 && Math.abs(velocity.current.y) < 0.1) {
+      if (
+        Math.abs(velocity.current.x) < 0.1 &&
+        Math.abs(velocity.current.y) < 0.1
+      ) {
         return
       }
 
@@ -196,7 +199,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       >
         {/* UI */}
         <div className="absolute top-4 left-4 flex gap-3 z-20">
-          <button onClick={resetView} className="bg-gray-800 text-white px-3 py-1 rounded text-sm">
+          <button
+            onClick={resetView}
+            className="bg-gray-800 text-white px-3 py-1 rounded text-sm"
+          >
             Reset
           </button>
           <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
@@ -217,7 +223,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
           <div className="flex items-center justify-center h-full w-full">
-            <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+            <div
+              style={{
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              }}
+            >
               <img src={after} className="block max-w-none" draggable={false} />
             </div>
           </div>
@@ -225,7 +235,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
         {/* BEFORE（右側） */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+          <div
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+            }}
+          >
             <img src={before} className="block max-w-none" draggable={false} />
           </div>
         </div>
