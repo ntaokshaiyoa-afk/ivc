@@ -18,54 +18,25 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0  # PRでも差分取りやすくする
+          fetch-depth: 0  # 差分計算用
 
+      # pnpm を先に入れる
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      
+
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      
-      # pnpm が入った後に cache: pnpm を使う
+
+      # pnpm が入った後に cache: pnpm（pnpm store を actions/setup-node が面倒見てくれる）
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
 
-      - name: Detect pnpm migration
-        id: pnpmcheck
-        shell: bash
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            echo "pnpm_ready=true" >> $GITHUB_OUTPUT
-          else
-            echo "pnpm_ready=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Migrate to pnpm
-        if: steps.pnpmcheck.outputs.pnpm_ready == 'false'
-        shell: bash
-        run: |
-          npm install
-          pnpm import
-          pnpm install
-
-      - name: Commit pnpm migration
-        if: steps.pnpmcheck.outputs.pnpm_ready == 'false' && github.event_name == 'push'
-        shell: bash
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add pnpm-lock.yaml
-          git commit -m "auto migrate to pnpm [skip ci]" || exit 0
-          git push
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Prettier (changed files only)
+      - name: Detect changed files
+        id: changed
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -80,11 +51,21 @@ jobs:
             | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' \
             | grep -v '^node_modules/' || true)
 
-          if [ -n "$CHANGED" ]; then
-            pnpm exec prettier --write $CHANGED
-          else
-            echo "No files to format"
-          fi
+          # 複数行をそのまま output に渡す
+          {
+            echo "files<<EOF"
+            echo "$CHANGED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # 依存インストール無しで Prettier（高速）
+      - name: Prettier (changed files only, no install)
+        if: steps.changed.outputs.files != ''
+        shell: bash
+        run: |
+          # 必要ならバージョン固定（推奨）
+          # プロジェクトのprettierプラグインが必要な場合は pnpm install に戻してください
+          echo "${{ steps.changed.outputs.files }}" | xargs pnpm dlx prettier@3.5.3 --write
 
       - name: Commit formatting
         if: github.event_name == 'push'
@@ -94,6 +75,7 @@ jobs:
           git config --global user.email "github-actions@github.com"
 
           git add .
+          # workflowは勝手に触らない保険
           git restore --staged .github/workflows || true
 
           if ! git diff --cached --quiet; then
