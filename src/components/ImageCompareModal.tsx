@@ -93,7 +93,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
-  /* ---------- render ---------- */
+  /* ---------- rendering ---------- */
 
   return (
     <div
