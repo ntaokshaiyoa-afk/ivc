@@ -1,0 +1,97 @@
+name: Format (Prettier)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: format-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # PRでも差分取りやすくする
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Detect pnpm migration
+        id: pnpmcheck
+        shell: bash
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "pnpm_ready=true" >> $GITHUB_OUTPUT
+          else
+            echo "pnpm_ready=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Migrate to pnpm
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'false'
+        shell: bash
+        run: |
+          npm install
+          pnpm import
+          pnpm install
+
+      - name: Commit pnpm migration
+        if: steps.pnpmcheck.outputs.pnpm_ready == 'false' && github.event_name == 'push'
+        shell: bash
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add pnpm-lock.yaml
+          git commit -m "auto migrate to pnpm [skip ci]" || exit 0
+          git push
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prettier (changed files only)
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+
+          CHANGED=$(git diff --name-only "$base" "$head" \
+            | grep -E '\.(js|ts|tsx|jsx|json|css|md)$' \
+            | grep -v '^node_modules/' || true)
+
+          if [ -n "$CHANGED" ]; then
+            pnpm exec prettier --write $CHANGED
+          else
+            echo "No files to format"
+          fi
+
+      - name: Commit formatting
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add .
+          git restore --staged .github/workflows || true
+
+          if ! git diff --cached --quiet; then
+            git commit -m "auto format [skip ci]"
+            git push
+          fi
