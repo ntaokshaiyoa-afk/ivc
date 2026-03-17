@@ -6,21 +6,7 @@ import { detectProcessor, getProcessorById } from '@/domain/processor/detect'
 import { calcReduction, formatSize } from '@/shared/utils/format'
 
 import ImageCompareModal from '@/components/Preview/Compare/ImageCompareModal'
-import { ImageCompare } from '@/components/Preview/Compare/ImageCompare'
-import { VideoCompare } from '@/components/Preview/Compare/VideoCompare'
-
-const IMAGE_CODECS = [
-  { value: 'jpeg', label: 'JPEG (MozJPEG)' },
-  { value: 'webp', label: 'WebP' },
-  { value: 'avif', label: 'AVIF' },
-  { value: 'png', label: 'PNG (oxipng)' },
-  { value: 'webp-lossless', label: 'WebP Lossless' },
-]
-const VIDEO_CODECS = [
-  { value: 'h264', label: 'H264' },
-  { value: 'vp9', label: 'VP9' },
-  { value: 'av1', label: 'AV1' },
-]
+import { JobCard } from '@/components/jobs/JobCard'
 
 export default function App() {
   const [jobs, setJobs] = useState<Job[]>([])
@@ -55,10 +41,6 @@ export default function App() {
       const p = detectProcessor(file)
       if (!p) continue
 
-      // handleFiles 内
-      console.log('input file', file, file instanceof Blob, file.type, file.size)
-      const previewUrl = URL.createObjectURL(file) // ここで落ちるなら file が壊れてる
-      console.log(previewUrl)
       next.push({
         id: crypto.randomUUID(),
         input: file,
@@ -74,19 +56,56 @@ export default function App() {
     setJobs((prev) => [...prev, ...next])
   }
 
-  const compressOne = useCallback(
-    async (job: Job) => {
-      const processor = getProcessorById(job.processorId)
-      if (!processor) return
+  /**
+   * 最新タスクのみ実行:
+   * jobIdごとに token を持ち、enqueue される度に token を更新。
+   * compressOne は開始前/終了後に token を確認し、古ければ反映しない。
+   */
+  const latestTokenRef = useRef<Map<string, string>>(new Map())
+  const runningRef = useRef<Map<string, boolean>>(new Map())
 
-      updateJob(job.id, { status: 'processing', progress: 0, error: undefined })
+  const enqueueLatest = useCallback((jobId: string) => {
+    const token = crypto.randomUUID()
+    latestTokenRef.current.set(jobId, token)
+    return token
+  }, [])
+
+  const compressOne = useCallback(
+    async (jobId: string, token?: string) => {
+      const job = jobs.find((j) => j.id === jobId)
+      if (!job) return
+
+      const currentToken = latestTokenRef.current.get(jobId)
+      if (token && currentToken && token !== currentToken) return
+
+      // 既に走っているなら「最新tokenが残る」だけ。完了時に再実行される。
+      if (runningRef.current.get(jobId)) return
+      runningRef.current.set(jobId, true)
+
+      const processor = getProcessorById(job.processorId)
+      if (!processor) {
+        runningRef.current.set(jobId, false)
+        return
+      }
+
+      updateJob(jobId, { status: 'processing', progress: 0, error: undefined })
 
       try {
         const res = await processor.process(job.input, job.settings, {
-          onProgress: (p) => updateJob(job.id, { progress: p, status: 'processing' }),
+          onProgress: (p) => {
+            // 古いtokenなら進捗も反映しない
+            const t = latestTokenRef.current.get(jobId)
+            if (token && t && token !== t) return
+            updateJob(jobId, { progress: p, status: 'processing' })
+          },
         })
-        console.log('process result', res)
-        console.log('first output blob', res.outputs?.[0]?.blob, res.outputs?.[0]?.blob instanceof Blob)
+
+        const tAfter = latestTokenRef.current.get(jobId)
+        if (token && tAfter && token !== tAfter) {
+          // 古い結果は捨てる
+          return
+        }
+
         const outputs = res.outputs.map((o) => ({
           name: o.name,
           blob: o.blob,
@@ -95,16 +114,56 @@ export default function App() {
           url: URL.createObjectURL(o.blob),
         }))
 
-        updateJob(job.id, { outputs, status: 'done', progress: 100 })
+        updateJob(jobId, { outputs, status: 'done', progress: 100 })
       } catch (e) {
-        updateJob(job.id, {
+        const tAfter = latestTokenRef.current.get(jobId)
+        if (token && tAfter && token !== tAfter) return
+
+        updateJob(jobId, {
           status: 'error',
           error: e instanceof Error ? e.message : String(e),
         })
+      } finally {
+        runningRef.current.set(jobId, false)
+
+        // 実行中にさらに enqueueLatest されて token が変わっていたら、最新でもう一回
+        const latest = latestTokenRef.current.get(jobId)
+        if (latest && token && latest !== token) {
+          // 最新で再実行
+          compressOne(jobId, latest)
+        }
       }
     },
-    [updateJob],
+    [jobs, updateJob],
   )
+
+  // 画像カードから呼ぶ（debounce済）。常に「最新token」で再圧縮依頼。
+  const onRecompressLatest = useCallback(
+    (jobId: string) => {
+      const token = enqueueLatest(jobId)
+      compressOne(jobId, token)
+    },
+    [enqueueLatest, compressOne],
+  )
+
+  // 動画（ボタン）など、明示的に即実行したい時
+  const onRecompress = useCallback(
+    (jobId: string) => {
+      const token = enqueueLatest(jobId)
+      compressOne(jobId, token)
+    },
+    [enqueueLatest, compressOne],
+  )
+
+  const onChangeSettings = useCallback((jobId: string, patch: Record<string, any>) => {
+    setJobs((prev) =>
+      prev.map((j) =>
+        j.id === jobId
+          ? { ...j, settings: { ...j.settings, ...patch }, status: 'waiting' }
+          : j,
+      ),
+    )
+  }, [])
 
   const compressAll = async () => {
     setIsProcessing(true)
@@ -119,7 +178,9 @@ export default function App() {
         while (queue.length > 0) {
           const job = queue.shift()
           if (!job) break
-          await compressOne(job)
+          // compressAll は逐次でも「最新token」を入れて実行
+          const token = enqueueLatest(job.id)
+          await compressOne(job.id, token)
         }
       })
 
@@ -167,7 +228,6 @@ export default function App() {
     return () => media.removeEventListener('change', listener)
   }, [])
 
-  // totals（outputs配列前提）
   const totalOriginal = useMemo(
     () => jobs.reduce((sum, j) => sum + j.originalSize, 0),
     [jobs],
@@ -181,36 +241,6 @@ export default function App() {
     [jobs],
   )
   const totalSaved = totalOriginal - totalCompressed
-
-  const isImageJob = (j: Job) => j.processorId === 'image'
-  const isVideoJob = (j: Job) => j.processorId === 'video'
-
-  const changeQuality = (id: string, value: number) => {
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === id
-          ? { ...j, settings: { ...j.settings, quality: value }, status: 'waiting' }
-          : j,
-      ),
-    )
-  }
-
-  const changeCodec = (id: string, codec: string) => {
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === id
-          ? { ...j, settings: { ...j.settings, codec }, status: 'waiting' }
-          : j,
-      ),
-    )
-  }
-
-  // 画像は「設定変更で自動再圧縮」だけ維持（動画は重い想定で手動）
-  useEffect(() => {
-    jobs.forEach((j) => {
-      if (isImageJob(j) && j.status === 'waiting') compressOne(j)
-    })
-  }, [jobs, compressOne])
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
@@ -234,7 +264,6 @@ export default function App() {
               <input
                 type="file"
                 multiple
-                // いったん従来通り。後で accept を processor から組み立ててもOK
                 accept="image/*,video/*"
                 onChange={(e) => handleFiles(e.target.files)}
                 className="block w-full text-sm
@@ -274,94 +303,16 @@ export default function App() {
         </div>
 
         <div className="space-y-8">
-          {jobs.map((job) => {
-            const firstOut = job.outputs?.[0]
-            const outSize = job.outputs?.reduce((s, o) => s + o.size, 0)
-            const beforeUrl = job.previewUrl
-            const afterUrl = firstOut?.url
-
-            return (
-              <div
-                key={job.id}
-                className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg transition-colors"
-              >
-                <div className="flex justify-end mb-2">
-                  {afterUrl && isImageJob(job) && (
-                    <button
-                      onClick={() => openModal(beforeUrl, afterUrl)}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg"
-                    >
-                      拡大表示
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  {/* codec */}
-                  <select
-                    value={(job.settings.codec as string) ?? ''}
-                    onChange={(e) => changeCodec(job.id, e.target.value)}
-                    className="p-2 rounded border"
-                  >
-                    {(isVideoJob(job) ? VIDEO_CODECS : IMAGE_CODECS).map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* quality */}
-                  {isImageJob(job) && (
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="1"
-                      step="0.05"
-                      value={(job.settings.quality as number) ?? 0.7}
-                      onChange={(e) => changeQuality(job.id, Number(e.target.value))}
-                    />
-                  )}
-                </div>
-
-                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                  {job.input.name}
-                </h3>
-
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  {formatSize(job.originalSize)} → {outSize ? formatSize(outSize) : '-'}{' '}
-                  {outSize && (
-                    <span className="text-green-600 font-semibold">
-                      ({calcReduction(job.originalSize, outSize)})
-                    </span>
-                  )}
-                </p>
-
-                <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
-                  <div
-                    className="h-full bg-blue-500 transition-all"
-                    style={{ width: `${job.progress}%` }}
-                  />
-                </div>
-
-                {/* preview */}
-                {afterUrl ? (
-                  isVideoJob(job) ? (
-                    <VideoCompare before={beforeUrl} after={afterUrl} />
-                  ) : (
-                    <ImageCompare before={beforeUrl} after={afterUrl} />
-                  )
-                ) : isVideoJob(job) ? (
-                  <video src={beforeUrl} controls className="w-full rounded-xl" />
-                ) : (
-                  <img src={beforeUrl} className="w-full rounded-xl" />
-                )}
-
-                {job.status === 'error' && (
-                  <p className="mt-4 text-red-600">{job.error}</p>
-                )}
-              </div>
-            )
-          })}
+          {jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onChangeSettings={onChangeSettings}
+              onRecompress={onRecompress}
+              onRecompressLatest={onRecompressLatest}
+              onOpenImageModal={openModal}
+            />
+          ))}
         </div>
       </div>
 
