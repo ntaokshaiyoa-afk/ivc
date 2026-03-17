@@ -134,15 +134,14 @@ export async function compressVideo(
 
   try {
     // 既存削除（あってもなくてもOK）
-    try { 
-      await ffmpeg.deleteFile(inFile) 
-    } 
-    catch (err) {
+    try {
+      await ffmpeg.deleteFile(inFile)
+    } catch (err) {
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
       console.debug('ffmpeg.deleteFile ignored:', inFile, err)
     }
 
-    try { 
+    try {
       await ffmpeg.deleteFile(outFile)
     } catch (err) {
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
@@ -164,14 +163,14 @@ export async function compressVideo(
       type: outMime,
     })
   } finally {
-    try { 
-      await ffmpeg.deleteFile(inFile) 
+    try {
+      await ffmpeg.deleteFile(inFile)
     } catch (err) {
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
       console.debug('ffmpeg.deleteFile ignored:', inFile, err)
     }
-    try { 
-      await ffmpeg.deleteFile(outFile) 
+    try {
+      await ffmpeg.deleteFile(outFile)
     } catch (err) {
       // 削除対象が存在しない等は無視する（eslint no-empty 対応）
       console.debug('ffmpeg.deleteFile ignored:', outFile, err)
