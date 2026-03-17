@@ -31,20 +31,24 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
-  /* ---------- inertia ---------- */
+  /* ---------- inertia（修正済） ---------- */
 
   useEffect(() => {
     let raf: number
 
     const loop = () => {
+      // 操作中は慣性停止
+      if (mode.current !== null) {
+        raf = requestAnimationFrame(loop)
+        return
+      }
+
       velocity.current.x *= 0.95
       velocity.current.y *= 0.95
 
-      if (
-        Math.abs(velocity.current.x) < 0.1 &&
-        Math.abs(velocity.current.y) < 0.1
-      )
+      if (Math.abs(velocity.current.x) < 0.1 && Math.abs(velocity.current.y) < 0.1) {
         return
+      }
 
       setOffset((o) => ({
         x: o.x + velocity.current.x,
@@ -54,12 +58,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       raf = requestAnimationFrame(loop)
     }
 
-    if (mode.current === null) {
-      raf = requestAnimationFrame(loop)
-    }
-
+    raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [mode.current])
+  }, []) // ← ★完全に空
 
   /* ---------- helpers ---------- */
 
@@ -174,18 +175,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     if (pointers.current.size === 0) mode.current = null
   }
 
-  const resetView = () => {
-    setScale(1)
-    setOffset({ x: 0, y: 0 })
-  }
-
   /* ---------- render ---------- */
 
   return (
-    <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={onClose}>
       <div
         ref={containerRef}
         className="relative w-[90vw] h-[90vh] overflow-hidden select-none"
@@ -196,52 +189,32 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        {/* BEFORE（左側） */}
+        {/* BEFORE（左） */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
           <div className="flex items-center justify-center h-full w-full">
-            <div
-              style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-              }}
-            >
-              <img
-                src={before}
-                className="block max-w-none"
-                draggable={false}
-              />
+            <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+              <img src={before} className="block max-w-none" draggable={false} />
             </div>
           </div>
         </div>
 
-        {/* AFTER（右側） */}
+        {/* AFTER（右） */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-          >
+          <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
             <img src={after} className="block max-w-none" draggable={false} />
           </div>
         </div>
 
         {/* divider */}
-        <div
-          className="absolute top-0 bottom-0 w-[2px] bg-white z-20"
-          style={{ left: `${position}%` }}
-        />
+        <div className="absolute top-0 bottom-0 w-[2px] bg-white z-20" style={{ left: `${position}%` }} />
 
         {/* slider */}
         <div
           className="absolute z-30"
-          style={{
-            left: `${position}%`,
-            top: 0,
-            bottom: 0,
-            transform: 'translateX(-50%)',
-          }}
+          style={{ left: `${position}%`, top: 0, bottom: 0, transform: 'translateX(-50%)' }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div
