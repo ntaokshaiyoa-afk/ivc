@@ -154,8 +154,6 @@ export default function App() {
     },
     [enqueueLatest, compressOne],
   )
-
-<<<<<<< HEAD
   const onChangeSettings = useCallback((jobId: string, patch: Record<string, unknown>) => {
     setJobs((prev) =>
       prev.map((j) =>
@@ -165,20 +163,6 @@ export default function App() {
       ),
     )
   }, [])
-=======
-  const onChangeSettings = useCallback(
-    (jobId: string, patch: Record<string, any>) => {
-      setJobs((prev) =>
-        prev.map((j) =>
-          j.id === jobId
-            ? { ...j, settings: { ...j.settings, ...patch }, status: 'waiting' }
-            : j,
-        ),
-      )
-    },
-    [],
-  )
->>>>>>> 1db1432548b2bda74ea97b1691c1601d833cf91c
 
   const compressAll = async () => {
     setIsProcessing(true)
