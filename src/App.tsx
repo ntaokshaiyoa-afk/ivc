@@ -32,7 +32,7 @@ function App() {
     setModalOpen(true)
   }
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    // 保存済み設定があれば優先
+    // 保存済み設定があれば、優先
     const saved = localStorage.getItem('theme')
     if (saved === 'dark') return true
     if (saved === 'light') return false
