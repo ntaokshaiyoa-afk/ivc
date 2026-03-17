@@ -22,21 +22,21 @@ jobs:
       # -----------------------------
       # Checkout
       # -----------------------------
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
       # -----------------------------
       # Node
       # -----------------------------
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
       # -----------------------------
       # pnpm setup
       # -----------------------------
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
@@ -80,7 +80,7 @@ jobs:
       # -----------------------------
       # Cache pnpm
       # -----------------------------
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.pnpmcheck.outputs.pnpm_ready == 'true'
         with:
           node-version: 22
@@ -115,7 +115,7 @@ jobs:
       # -----------------------------
       # Cache vite
       # -----------------------------
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             node_modules/.vite
@@ -178,7 +178,7 @@ jobs:
       # -----------------------------
       - name: Setup Pages
         if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         if: github.event_name == 'push' && steps.changes.outputs.build_required == 'true'
