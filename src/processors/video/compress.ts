@@ -9,7 +9,6 @@ export async function initFFmpeg(onProgress?: (progress: number) => void) {
 
   ffmpeg = new FFmpeg()
 
-  // 🔥 進捗イベント
   if (onProgress) {
     ffmpeg.on('progress', ({ progress }) => {
       onProgress(Math.floor(progress * 100))
@@ -28,39 +27,28 @@ export async function initFFmpeg(onProgress?: (progress: number) => void) {
 
 export async function compressVideo(
   file: File,
+  codec: string, // いまは未使用（まずビルド優先）
   onProgress?: (progress: number) => void,
 ): Promise<File> {
-  if (!ffmpeg) {
-    await initFFmpeg(onProgress)
-  }
+  if (!ffmpeg) await initFFmpeg(onProgress)
 
   const inputName = 'input.mp4'
   const outputName = 'output.mp4'
 
   await ffmpeg!.writeFile(inputName, await fetchFile(file))
 
+  // いったん従来通り libx264 固定（codec選択対応は次段）
   await ffmpeg!.exec([
-    '-i',
-    inputName,
-    '-vcodec',
-    'libx264',
-    '-crf',
-    '28',
-    '-preset',
-    'veryfast',
+    '-i', inputName,
+    '-vcodec', 'libx264',
+    '-crf', '28',
+    '-preset', 'veryfast',
     outputName,
   ])
 
-  // 🔥 ここが重要
   const data = await ffmpeg!.readFile(outputName)
-
-  // 明示的に Uint8Array に固定
   const uint8 = new Uint8Array(data as Uint8Array)
-
-  // Blobに変換
-  const blob = new Blob([uint8.buffer], {
-    type: 'video/mp4',
-  })
+  const blob = new Blob([uint8.buffer], { type: 'video/mp4' })
 
   return new File([blob], `compressed_${file.name}`, { type: 'video/mp4' })
 }

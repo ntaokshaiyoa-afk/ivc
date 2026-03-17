@@ -31,6 +31,44 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
+  /* ホイールスクロールを止めて、ズームにする */
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+
+      const rect = el.getBoundingClientRect()
+      const cx = e.clientX - rect.left - rect.width / 2
+      const cy = e.clientY - rect.top - rect.height / 2
+
+      // ホイールでズーム（中心はマウス位置）
+      const zoomIntensity = 0.0015
+      setScale((s) => {
+        const next = Math.min(10, Math.max(0.2, s * Math.exp(-e.deltaY * zoomIntensity)))
+
+        setOffset((o) => ({
+          x: o.x - cx * (next / s - 1),
+          y: o.y - cy * (next / s - 1),
+        }))
+
+        return next
+      })
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel as any)
+  }, [])
+  /* ついでに（任意）モーダル表示中の背景スクロールも止めたい場合 */
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
+
   /* ---------- inertia（修正済） ---------- */
 
   useEffect(() => {
@@ -195,6 +233,29 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+        {/* close button */}
+        <button
+          type="button"
+          aria-label="閉じる"
+          className="absolute top-3 right-3 z-50 bg-black/60 text-white border border-white/20
+                    rounded-md px-3 py-2 hover:bg-black/80"
+          onPointerDownCapture={(e) => {
+            e.stopPropagation()
+          }}
+          onPointerMoveCapture={(e) => {
+            e.stopPropagation()
+          }}
+          onPointerUpCapture={(e) => {
+            e.stopPropagation()
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
+        >
+          ×
+        </button>
+                
         {/* BEFORE（左） */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
@@ -216,13 +277,19 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         </div>
 
         {/* AFTER（右） */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-          >
-            <img src={after} className="block max-w-none" draggable={false} />
+        <div
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          // position より左を隠して「右側だけ after」を表示
+          style={{ clipPath: `inset(0 0 0 ${position}%)` }}
+        >
+          <div className="flex items-center justify-center h-full w-full">
+            <div
+              style={{
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              }}
+            >
+              <img src={after} className="block max-w-none" draggable={false} />
+            </div>
           </div>
         </div>
 
