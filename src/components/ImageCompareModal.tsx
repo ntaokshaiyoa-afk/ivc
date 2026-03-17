@@ -10,7 +10,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
-
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
@@ -30,12 +29,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     const target = e.target as HTMLElement
-
-    if (target.dataset.slider) {
-      mode.current = 'slider'
-    } else {
-      mode.current = 'image'
-    }
+    mode.current = target.dataset.slider ? 'slider' : 'image'
 
     containerRef.current?.setPointerCapture(e.pointerId)
     pointers.current.set(e.pointerId, e.nativeEvent)
@@ -47,7 +41,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     pointers.current.set(e.pointerId, e.nativeEvent)
 
-    /* pinch zoom */
+    // pinch
     if (pointers.current.size === 2) {
       const [p1, p2] = [...pointers.current.values()]
       const dx = p1.clientX - p2.clientX
@@ -65,7 +59,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* slider */
+    // slider
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
       const percent = ((e.clientX - rect.left) / rect.width) * 100
@@ -73,10 +67,9 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* pan */
+    // pan
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
-
     last.current = { x: e.clientX, y: e.clientY }
 
     setOffset((o) => ({
@@ -103,7 +96,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     >
       <div
         ref={containerRef}
-        className="relative w-[90vw] h-[90vh] overflow-hidden select-none flex items-center justify-center"
+        className="relative w-[90vw] h-[90vh] overflow-hidden select-none"
         style={{ touchAction: 'none' }}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={onPointerDown}
@@ -131,27 +124,21 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* BEFORE（全面） */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {/* ★ transformはここ1箇所だけ */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <div
+            className="relative"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           >
+            {/* before */}
             <img src={before} className="block max-w-none" draggable={false} />
-          </div>
-        </div>
 
-        {/* AFTER（clipはcontainer基準） */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{ width: `${position}%` }}
-        >
-          <div className="flex items-center justify-center h-full w-full">
+            {/* after（同一座標でclip） */}
             <div
-              style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-              }}
+              className="absolute top-0 left-0 h-full overflow-hidden"
+              style={{ width: `${position}%` }}
             >
               <img src={after} className="block max-w-none" draggable={false} />
             </div>
