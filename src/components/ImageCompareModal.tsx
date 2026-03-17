@@ -15,9 +15,12 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const mode = useRef<'image' | 'slider' | null>(null)
   const last = useRef({ x: 0, y: 0 })
+  const velocity = useRef({ x: 0, y: 0 })
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
+
+  const lastTap = useRef(0)
 
   /* ---------- lifecycle ---------- */
 
@@ -29,15 +32,73 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
+  /* ---------- inertia ---------- */
+
+  useEffect(() => {
+    let raf: number
+
+    const loop = () => {
+      velocity.current.x *= 0.95
+      velocity.current.y *= 0.95
+
+      if (Math.abs(velocity.current.x) < 0.1 && Math.abs(velocity.current.y) < 0.1) {
+        return
+      }
+
+      setOffset((o) => ({
+        x: o.x + velocity.current.x,
+        y: o.y + velocity.current.y,
+      }))
+
+      raf = requestAnimationFrame(loop)
+    }
+
+    if (mode.current === null) {
+      raf = requestAnimationFrame(loop)
+    }
+
+    return () => cancelAnimationFrame(raf)
+  }, [mode.current])
+
   /* ---------- pointer ---------- */
 
+  const getRelativePoint = (clientX: number, clientY: number) => {
+    const rect = containerRef.current!.getBoundingClientRect()
+    return {
+      x: clientX - rect.left - rect.width / 2,
+      y: clientY - rect.top - rect.height / 2,
+    }
+  }
+
   const onPointerDown = (e: React.PointerEvent) => {
+    const now = Date.now()
+
+    // ダブルタップ
+    if (now - lastTap.current < 300) {
+      const p = getRelativePoint(e.clientX, e.clientY)
+
+      setScale((s) => {
+        const next = s > 1 ? 1 : 2
+
+        setOffset((o) => ({
+          x: o.x - p.x * (next / s - 1),
+          y: o.y - p.y * (next / s - 1),
+        }))
+
+        return next
+      })
+    }
+
+    lastTap.current = now
+
     const target = e.target as HTMLElement
     mode.current = target.dataset.slider ? 'slider' : 'image'
 
     containerRef.current?.setPointerCapture(e.pointerId)
     pointers.current.set(e.pointerId, e.nativeEvent)
+
     last.current = { x: e.clientX, y: e.clientY }
+    velocity.current = { x: 0, y: 0 }
   }
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -45,25 +106,44 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     pointers.current.set(e.pointerId, e.nativeEvent)
 
-    /* pinch zoom */
+    // pinch zoom（指中心固定）
     if (pointers.current.size === 2) {
       const [p1, p2] = [...pointers.current.values()]
+
       const dx = p1.clientX - p2.clientX
       const dy = p1.clientY - p2.clientY
       const dist = Math.sqrt(dx * dx + dy * dy)
+
+      const center = {
+        x: (p1.clientX + p2.clientX) / 2,
+        y: (p1.clientY + p2.clientY) / 2,
+      }
+
+      const p = getRelativePoint(center.x, center.y)
 
       if (pinchStart.current === 0) {
         pinchStart.current = dist
         return
       }
 
-      const delta = dist - pinchStart.current
-      setScale((s) => Math.min(10, Math.max(0.2, s + delta * 0.005)))
+      const ratio = dist / pinchStart.current
+
+      setScale((s) => {
+        const next = Math.min(10, Math.max(0.2, s * ratio))
+
+        setOffset((o) => ({
+          x: o.x - p.x * (next / s - 1),
+          y: o.y - p.y * (next / s - 1),
+        }))
+
+        return next
+      })
+
       pinchStart.current = dist
       return
     }
 
-    /* slider */
+    // slider
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
       const percent = ((e.clientX - rect.left) / rect.width) * 100
@@ -71,10 +151,13 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
-    /* pan */
+    // pan
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
+
     last.current = { x: e.clientX, y: e.clientY }
+
+    velocity.current = { x: dx, y: dy }
 
     setOffset((o) => ({
       x: o.x + dx,
@@ -84,6 +167,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
+
     if (pointers.current.size < 2) pinchStart.current = 0
     if (pointers.current.size === 0) mode.current = null
   }
@@ -93,7 +177,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
-  /* ---------- rendering ---------- */
+  /* ---------- render ---------- */
 
   return (
     <div
@@ -112,10 +196,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       >
         {/* UI */}
         <div className="absolute top-4 left-4 flex gap-3 z-20">
-          <button
-            onClick={resetView}
-            className="bg-gray-800 text-white px-3 py-1 rounded text-sm"
-          >
+          <button onClick={resetView} className="bg-gray-800 text-white px-3 py-1 rounded text-sm">
             Reset
           </button>
           <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
@@ -130,32 +211,22 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        {/* ---------- BEFORE（全面） ---------- */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            style={{
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-            }}
-          >
-            <img src={before} className="block max-w-none" draggable={false} />
+        {/* AFTER（左側に変更） */}
+        <div
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+        >
+          <div className="flex items-center justify-center h-full w-full">
+            <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+              <img src={after} className="block max-w-none" draggable={false} />
+            </div>
           </div>
         </div>
 
-        {/* ---------- AFTER（ここが重要） ---------- */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{
-            clipPath: `inset(0 ${100 - position}% 0 0)`,
-          }}
-        >
-          <div className="flex items-center justify-center h-full w-full">
-            <div
-              style={{
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-              }}
-            >
-              <img src={after} className="block max-w-none" draggable={false} />
-            </div>
+        {/* BEFORE（右側） */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+            <img src={before} className="block max-w-none" draggable={false} />
           </div>
         </div>
 
