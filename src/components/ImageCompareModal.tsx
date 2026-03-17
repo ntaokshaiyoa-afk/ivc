@@ -10,7 +10,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [position, setPosition] = useState(50)
-  const [containerWidth, setContainerWidth] = useState(0)
 
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
@@ -20,17 +19,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
   const pointers = useRef<Map<number, PointerEvent>>(new Map())
   const pinchStart = useRef(0)
-
-  useEffect(() => {
-    const update = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.clientWidth)
-      }
-    }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
@@ -59,6 +47,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
 
     pointers.current.set(e.pointerId, e.nativeEvent)
 
+    /* pinch zoom */
     if (pointers.current.size === 2) {
       const [p1, p2] = [...pointers.current.values()]
       const dx = p1.clientX - p2.clientX
@@ -76,6 +65,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
+    /* slider */
     if (mode.current === 'slider') {
       const rect = containerRef.current!.getBoundingClientRect()
       const percent = ((e.clientX - rect.left) / rect.width) * 100
@@ -83,6 +73,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       return
     }
 
+    /* pan */
     const dx = e.clientX - last.current.x
     const dy = e.clientY - last.current.y
 
@@ -105,12 +96,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     setOffset({ x: 0, y: 0 })
   }
 
-  const containerClip = containerWidth * (position / 100)
-
-  // ★ここだけ修正（中央補正）
-  const imageClip =
-    (containerClip - offset.x) / scale + containerWidth / (2 * scale)
-
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -126,6 +111,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+        {/* UI */}
         <div className="absolute top-4 left-4 flex gap-3 z-20">
           <button
             onClick={resetView}
@@ -133,7 +119,6 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           >
             Reset
           </button>
-
           <div className="bg-black/60 text-white px-3 py-1 rounded text-sm">
             {(scale * 100).toFixed(0)}%
           </div>
@@ -146,19 +131,26 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           ✕
         </button>
 
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* BEFORE（全面） */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div
-            className="relative will-change-transform"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           >
             <img src={before} className="block max-w-none" draggable={false} />
+          </div>
+        </div>
 
+        {/* AFTER（clipはcontainer基準） */}
+        <div
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{ width: `${position}%` }}
+        >
+          <div className="flex items-center justify-center h-full w-full">
             <div
-              className="absolute top-0 left-0 h-full overflow-hidden"
               style={{
-                width: `${Math.max(0, imageClip)}px`,
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
               }}
             >
               <img src={after} className="block max-w-none" draggable={false} />
@@ -166,11 +158,13 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           </div>
         </div>
 
+        {/* divider */}
         <div
           className="absolute top-0 bottom-0 w-[2px] bg-white z-20"
           style={{ left: `${position}%` }}
         />
 
+        {/* slider */}
         <div
           className="absolute z-30"
           style={{
