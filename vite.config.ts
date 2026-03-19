@@ -6,9 +6,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import path from 'node:path'
 import { execSync } from 'node:child_process'
 
-const commitHash = execSync('git rev-parse --short HEAD')
-  .toString()
-  .trim()
+const commitHash = execSync('git rev-parse --short HEAD').toString().trim()
 
 export default defineConfig({
   base: '/ivc/',
