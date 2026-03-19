@@ -35,7 +35,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
     return () => window.removeEventListener('keydown', esc)
   }, [onClose])
 
-  /* ホイールスクロールを止めて、ズームにする */
+  /* ホイールスクロールを止めてズームにする */
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
