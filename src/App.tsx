@@ -65,7 +65,7 @@ export default function App() {
   }
 
   /**
-   * 最新タスクのみ実行:
+   * 最新タスクのみ実行 :
    * jobIdごとに token を持ち、enqueue される度に token を更新。
    * compressOne は開始前/終了後に token を確認し、古ければ反映しない。
    */
