@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
-// ★ 追加：PWA更新検知
+// ★  追加：PWA更新検知
 import { registerSW } from 'virtual:pwa-register'
 
 // ★ 追加：Service Worker登録
