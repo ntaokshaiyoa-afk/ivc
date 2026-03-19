@@ -50,7 +50,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
       // ホイールでズーム（中心はマウス位置）
       const zoomIntensity = 0.0015
       setScale((s) => {
-        const next = Math.min(10, Math.max(0.2, s * Math.exp(-e.deltaY * zoomIntensity)))
+        const next = Math.min(
+          10,
+          Math.max(0.2, s * Math.exp(-e.deltaY * zoomIntensity)),
+        )
 
         setOffset((o) => ({
           x: o.x - cx * (next / s - 1),
@@ -259,7 +262,7 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         >
           ×
         </button>
-                
+
         {/* BEFORE（左） */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
@@ -280,25 +283,24 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           </div>
         </div>
 
-        
-{showDiff && diffUrl && (
-  <div className="absolute inset-0 pointer-events-none">
-    <div className="flex items-center justify-center h-full w-full">
-      <div
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-        }}
-      >
-        <img
-          src={diffUrl}
-          className="block max-w-none mix-blend-normal"
-          draggable={false}
-        />
-      </div>
-    </div>
-  </div>
-)}
-        
+        {showDiff && diffUrl && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="flex items-center justify-center h-full w-full">
+              <div
+                style={{
+                  transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                }}
+              >
+                <img
+                  src={diffUrl}
+                  className="block max-w-none mix-blend-normal"
+                  draggable={false}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* AFTER（右） */}
         <div
           className="absolute inset-0 overflow-hidden pointer-events-none"
@@ -341,11 +343,11 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
             </div>
           </div>
           <button
-  className="absolute top-3 left-3 z-50 bg-black/60 text-white px-3 py-2 rounded-md"
-  onClick={() => setShowDiff((v) => !v)}
->
-  差分 {showDiff ? 'ON' : 'OFF'}
-</button>    
+            className="absolute top-3 left-3 z-50 bg-black/60 text-white px-3 py-2 rounded-md"
+            onClick={() => setShowDiff((v) => !v)}
+          >
+            差分 {showDiff ? 'ON' : 'OFF'}
+          </button>
         </div>
       </div>
     </div>
