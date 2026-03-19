@@ -7,7 +7,9 @@ import path from 'node:path'
 
 export default defineConfig({
   base: '/ivc/',
-
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
