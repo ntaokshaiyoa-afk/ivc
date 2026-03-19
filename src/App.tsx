@@ -16,6 +16,8 @@ export default function App() {
   const [modalBefore, setModalBefore] = useState<string | null>(null)
   const [modalAfter, setModalAfter] = useState<string | null>(null)
 
+  const [needRefresh, setNeedRefresh] = useState(false)
+
   const openModal = (before: string, after: string) => {
     setModalBefore(before)
     setModalAfter(after)
@@ -33,6 +35,12 @@ export default function App() {
     setJobs((prev) => prev.map((j) => (j.id === id ? { ...j, ...patch } : j)))
   }, [])
 
+  useEffect(() => {
+  const handler = () => setNeedRefresh(true)
+  window.addEventListener('sw-update', handler)
+  return () => window.removeEventListener('sw-update', handler)
+}, [])
+  
   const handleFiles = (selected: FileList | null) => {
     if (!selected) return
 
@@ -251,6 +259,19 @@ export default function App() {
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
             Compressor
           </h1>
+          {needRefresh && (
+  <div className="fixed bottom-4 right-4 bg-yellow-400 text-black px-4 py-3 rounded-xl shadow-lg z-50">
+    <div className="text-sm font-semibold mb-1">
+      新しいバージョンがあります
+    </div>
+    <button
+      onClick={() => window.location.reload()}
+      className="text-sm underline"
+    >
+      更新する
+    </button>
+  </div>
+)}
 
           <button
             onClick={() => setDarkMode(!darkMode)}
