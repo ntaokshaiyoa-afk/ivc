@@ -144,4 +144,4 @@ jobs:
 
       - name: Deploy
         if: github.event_name == 'push' && needs.changes.outputs.build_required == 'true'
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
