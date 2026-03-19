@@ -270,10 +270,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         >
           <div className="absolute left-1/2 top-1/2">
             <div
-  style={{
-    transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-  }}
->
+              style={{
+                transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              }}
+            >
               <img
                 src={before}
                 className="block max-w-none"
@@ -287,10 +287,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute left-1/2 top-1/2">
               <div
-  style={{
-    transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-  }}
->
+                style={{
+                  transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                }}
+              >
                 <img
                   src={diffUrl}
                   className="block max-w-none mix-blend-normal"
@@ -309,10 +309,10 @@ export default function ImageCompareModal({ before, after, onClose }: Props) {
         >
           <div className="absolute left-1/2 top-1/2">
             <div
-  style={{
-    transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-  }}
->
+              style={{
+                transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              }}
+            >
               <img src={after} className="block max-w-none" draggable={false} />
             </div>
           </div>
