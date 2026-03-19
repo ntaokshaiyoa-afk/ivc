@@ -36,11 +36,11 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-  const handler = () => setNeedRefresh(true)
-  window.addEventListener('sw-update', handler)
-  return () => window.removeEventListener('sw-update', handler)
-}, [])
-  
+    const handler = () => setNeedRefresh(true)
+    window.addEventListener('sw-update', handler)
+    return () => window.removeEventListener('sw-update', handler)
+  }, [])
+
   const handleFiles = (selected: FileList | null) => {
     if (!selected) return
 
@@ -260,18 +260,18 @@ export default function App() {
             Compressor
           </h1>
           {needRefresh && (
-  <div className="fixed bottom-4 right-4 bg-yellow-400 text-black px-4 py-3 rounded-xl shadow-lg z-50">
-    <div className="text-sm font-semibold mb-1">
-      新しいバージョンがあります
-    </div>
-    <button
-      onClick={() => window.location.reload()}
-      className="text-sm underline"
-    >
-      更新する
-    </button>
-  </div>
-)}
+            <div className="fixed bottom-4 right-4 bg-yellow-400 text-black px-4 py-3 rounded-xl shadow-lg z-50">
+              <div className="text-sm font-semibold mb-1">
+                新しいバージョンがあります
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-sm underline"
+              >
+                更新する
+              </button>
+            </div>
+          )}
 
           <button
             onClick={() => setDarkMode(!darkMode)}
