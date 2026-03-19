@@ -4,11 +4,17 @@ import { VitePWA } from 'vite-plugin-pwa'
 import compression from 'vite-plugin-compression'
 import { visualizer } from 'rollup-plugin-visualizer'
 import path from 'node:path'
+import { execSync } from 'node:child_process'
+
+const commitHash = execSync('git rev-parse --short HEAD')
+  .toString()
+  .trim()
 
 export default defineConfig({
   base: '/ivc/',
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __COMMIT_HASH__: JSON.stringify(commitHash),
   },
   resolve: {
     alias: {
@@ -30,7 +36,7 @@ export default defineConfig({
     }),
 
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'autoUpdate', // ← 重要（更新検知）
 
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
 
