@@ -23,7 +23,7 @@ jobs:
       # pnpm を先に入れる
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
 
       - uses: pnpm/action-setup@v4
         with:
@@ -32,7 +32,7 @@ jobs:
       # pnpm が入った後に cache: pnpm（pnpm store を actions/setup-node が面倒見てくれる）
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Detect changed files
