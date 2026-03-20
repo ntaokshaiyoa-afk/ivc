@@ -280,7 +280,9 @@ export default function App() {
             {darkMode ? '☀ Light' : '🌙 Dark'}
           </button>
         </div>
-<div><h3 style={{ color: 'red' }}>ビルド:{__BUILD_TIME__}</h3></div>
+        <div>
+          <h3 style={{ color: 'red' }}>ビルド:{__BUILD_TIME__}</h3>
+        </div>
         <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-10 transition-colors">
           <div className="grid md:grid-cols-3 gap-6 items-end">
             <div className="md:col-span-2">
