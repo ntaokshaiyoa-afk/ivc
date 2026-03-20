@@ -259,6 +259,9 @@ export default function App() {
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
             Compressor
           </h1>
+          <h1 style={{ color: 'red' }}>
+  ビルド:{__BUILD_TIME__}
+</h1>
           {needRefresh && (
             <div className="fixed bottom-4 right-4 bg-yellow-400 text-black px-4 py-3 rounded-xl shadow-lg z-50">
               <div className="text-sm font-semibold mb-1">
