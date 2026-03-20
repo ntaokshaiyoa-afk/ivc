@@ -259,7 +259,6 @@ export default function App() {
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
             Compressor
           </h1>
-          <h1 style={{ color: 'red' }}>ビルド:{__BUILD_TIME__}</h1>
           {needRefresh && (
             <div className="fixed bottom-4 right-4 bg-yellow-400 text-black px-4 py-3 rounded-xl shadow-lg z-50">
               <div className="text-sm font-semibold mb-1">
@@ -281,7 +280,7 @@ export default function App() {
             {darkMode ? '☀ Light' : '🌙 Dark'}
           </button>
         </div>
-
+<div><h3 style={{ color: 'red' }}>ビルド:{__BUILD_TIME__}</h3></div>
         <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mb-10 transition-colors">
           <div className="grid md:grid-cols-3 gap-6 items-end">
             <div className="md:col-span-2">
