@@ -8,6 +8,7 @@ import { registerSW } from 'virtual:pwa-register'
 
 // ★ 追加：Service Worker登録
 registerSW({
+  immediate: true,
   onNeedRefresh() {
     console.log('新しいバージョンがあります')
     // App側に通知
