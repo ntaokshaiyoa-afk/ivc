@@ -3,11 +3,10 @@ import { imageProcessor } from '@/processors/image'
 import { videoProcessor } from '@/processors/video'
 import { officeProcessor } from './officeProcessor'
 
-
 const processors: Processor[] = [
   officeProcessor,
-  imageProcessor, 
-  videoProcessor
+  imageProcessor,
+  videoProcessor,
 ]
 
 export function detectProcessor(file: File): Processor | null {
