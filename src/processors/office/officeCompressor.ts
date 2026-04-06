@@ -1,5 +1,6 @@
 import JSZip from 'jszip'
 import type { OfficeImage } from '@/domain/processor/types'
+import type { OfficeOverrides } from '@/domain/processor/types'
 
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
@@ -48,10 +49,7 @@ async function compressImage(
 export async function compressOffice(
   file: File,
   onProgress?: (p: number) => void,
-  overrides?: Record<
-    string,
-    { format: 'jpeg' | 'png' | 'webp'; quality: number }
-  >,
+  overrides?: OfficeOverrides,
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
