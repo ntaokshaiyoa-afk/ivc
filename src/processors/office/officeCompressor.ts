@@ -82,18 +82,28 @@ export async function compressOffice(
     const quality = override?.quality ?? 0.7
 
     const compressed = await compressImage(blob, format, quality)
-
-    // ★これ忘れると「圧縮されない」
-    zip.file(path, compressed)
-
+    
+    // ★ サイズ比較
+    const finalBlob =
+      compressed.size < blob.size ? compressed : blob
+    
+    const usedCompressed = compressed.size < blob.size
+    
+    // ★ zipにも反映
+    zip.file(path, finalBlob)
+    
     officeImages.push({
       path,
       beforeUrl: URL.createObjectURL(blob),
-      afterUrl: URL.createObjectURL(compressed),
+      afterUrl: URL.createObjectURL(finalBlob),
       originalSize: blob.size,
-      compressedSize: compressed.size,
+      compressedSize: finalBlob.size,
+    
       format,
       quality,
+    
+      // ★追加（UIで使える）
+      skipped: !usedCompressed,
     })
 
     done++
