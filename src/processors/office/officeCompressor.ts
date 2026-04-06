@@ -1,7 +1,9 @@
 import JSZip from 'jszip'
-import type { OfficeImage } from '@/domain/processor/types'
-import type { OfficeOverrides } from '@/domain/processor/types'
-import type { OfficeImageOverride } from '@/domain/processor/types'
+import type {
+  OfficeImage,
+  OfficeOverrides,
+  OfficeImageOverride,
+} from '@/domain/processor/types'
 
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
@@ -33,16 +35,24 @@ async function compressImage(
   if (format === 'png') {
     return canvas.convertToBlob({ type: 'image/png' })
   }
+
   if (format === 'webp') {
-    return canvas.convertToBlob({ type: 'image/webp', quality })
+    return canvas.convertToBlob({
+      type: 'image/webp',
+      quality,
+    })
   }
-  return canvas.convertToBlob({ type: 'image/jpeg', quality })
+
+  return canvas.convertToBlob({
+    type: 'image/jpeg',
+    quality,
+  })
 }
 
 export async function compressOffice(
   file: File,
   onProgress?: (p: number) => void,
-  overrides?: OfficeOverrides,
+  overrides: OfficeOverrides = {},
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
@@ -50,6 +60,7 @@ export async function compressOffice(
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
   )
+
   if (entries.length === 0) {
     return {
       outBlob: file,
@@ -65,12 +76,15 @@ export async function compressOffice(
     const isPng = path.toLowerCase().endsWith('.png')
     const alpha = isPng ? await hasAlpha(blob) : false
 
-    const override = overrides[path]
+    const override: OfficeImageOverride | undefined = overrides[path]
 
     const format = override?.format ?? (alpha ? 'png' : 'jpeg')
     const quality = override?.quality ?? 0.7
 
     const compressed = await compressImage(blob, format, quality)
+
+    // ★これ忘れると「圧縮されない」
+    zip.file(path, compressed)
 
     officeImages.push({
       path,
@@ -78,8 +92,6 @@ export async function compressOffice(
       afterUrl: URL.createObjectURL(compressed),
       originalSize: blob.size,
       compressedSize: compressed.size,
-
-      // ★追加
       format,
       quality,
     })
