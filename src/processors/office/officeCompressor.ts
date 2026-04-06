@@ -3,7 +3,7 @@ import { optimise } from '@jsquash/oxipng'
 import type {
   OfficeImage,
   OfficeOverrides,
- // OfficeImageOverride,
+  // OfficeImageOverride,
 } from '@/domain/processor/types'
 
 function isImage(path: string) {
@@ -136,6 +136,6 @@ export async function compressOffice(
   const outBlob = await zip.generateAsync({ type: 'blob' })
 
   console.log(overrides)
-  
+
   return { outBlob, officeImages }
 }
