@@ -48,6 +48,10 @@ async function compressImage(
 export async function compressOffice(
   file: File,
   onProgress?: (p: number) => void,
+  overrides?: Record<
+    string,
+    { format: 'jpeg' | 'png' | 'webp'; quality: number }
+  >,
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
@@ -71,10 +75,14 @@ export async function compressOffice(
     const alpha = isPng ? await hasAlpha(blob) : false
 
     // ★デフォルト
-    const format: 'jpeg' | 'png' | 'webp' = alpha ? 'png' : 'jpeg'
-
-    const quality = 0.7
-
+    const override = overrides?.[path]
+    
+    const format =
+      override?.format ??
+      (alpha ? 'png' : 'jpeg')
+    
+    const quality = override?.quality ?? 0.7
+    
     const compressed = await compressImage(blob, format, quality)
 
     officeImages.push({
