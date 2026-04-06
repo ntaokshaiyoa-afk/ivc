@@ -1,7 +1,7 @@
 import type { Processor } from './types'
 import { imageProcessor } from '@/processors/image'
 import { videoProcessor } from '@/processors/video'
-import { officeProcessor } from '@/processors/officeProcessor'
+import { officeProcessor } from '@/processors/office'
 
 const processors: Processor[] = [
   officeProcessor,
@@ -15,9 +15,4 @@ export function detectProcessor(file: File): Processor | null {
 
 export function getProcessorById(id: string): Processor | null {
   return processors.find((p) => p.id === id) ?? null
-}
-
-// 必要なら一覧も使えるように（将来用）
-export function listProcessors(): Processor[] {
-  return processors.slice()
 }
