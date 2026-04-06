@@ -76,13 +76,11 @@ export async function compressOffice(
 
     // ★デフォルト
     const override = overrides?.[path]
-    
-    const format =
-      override?.format ??
-      (alpha ? 'png' : 'jpeg')
-    
+
+    const format = override?.format ?? (alpha ? 'png' : 'jpeg')
+
     const quality = override?.quality ?? 0.7
-    
+
     const compressed = await compressImage(blob, format, quality)
 
     officeImages.push({
