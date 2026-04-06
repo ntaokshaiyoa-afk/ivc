@@ -16,7 +16,7 @@ export const officeProcessor: Processor = {
   async process(file, settings, ctx) {
     const s = settings as OfficeSettings
 
-    const { outBlob, officeImages } = await compressOffice(
+    const { outBlob, officeImages, appliedOverrides } = await compressOffice(
       file,
       ctx?.onProgress,
       s.overrides,
@@ -31,6 +31,7 @@ export const officeProcessor: Processor = {
         },
       ],
       officeImages,
+      appliedOverrides,
     }
   },
 }
