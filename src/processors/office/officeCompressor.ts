@@ -124,9 +124,9 @@ export async function compressOffice(
       }
 
       appliedOverrides[path] = {
-  format,
-  quality,
-}
+        format,
+        quality,
+      }
     }
 
     // ★ZIPに反映
