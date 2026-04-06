@@ -29,5 +29,9 @@ export type Processor = {
   kind: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'unknown'
   accepts: (file: File) => boolean
   getDefaultSettings: () => ProcessorSettings
-  process: (file: File, settings: ProcessorSettings, ctx: ProcessCtx) => Promise<ProcessResult>
+  process: (
+    file: File,
+    settings: ProcessorSettings,
+    ctx: ProcessCtx,
+  ) => Promise<ProcessResult>
 }
