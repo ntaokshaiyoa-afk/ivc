@@ -100,27 +100,27 @@ export default function App() {
 
       try {
         const res = await processor.process(job.input, job.settings, {
-  onProgress: (p) => {
-    const t = latestTokenRef.current.get(jobId)
-    if (token && t && token !== t) return
-    updateJob(jobId, { progress: p, status: 'processing' })
-  },
-})
+          onProgress: (p) => {
+            const t = latestTokenRef.current.get(jobId)
+            if (token && t && token !== t) return
+            updateJob(jobId, { progress: p, status: 'processing' })
+          },
+        })
 
-const outputs = res.outputs.map((o) => ({
-  name: o.name,
-  blob: o.blob,
-  mime: o.mime,
-  size: o.blob.size,
-  url: URL.createObjectURL(o.blob),
-}))
+        const outputs = res.outputs.map((o) => ({
+          name: o.name,
+          blob: o.blob,
+          mime: o.mime,
+          size: o.blob.size,
+          url: URL.createObjectURL(o.blob),
+        }))
 
-updateJob(jobId, {
-  outputs,
-  officeImages: res.officeImages, // ★これだけ追加
-  status: 'done',
-  progress: 100,
-})
+        updateJob(jobId, {
+          outputs,
+          officeImages: res.officeImages, // ★これだけ追加
+          status: 'done',
+          progress: 100,
+        })
       } catch (e) {
         const tAfter = latestTokenRef.current.get(jobId)
         if (token && tAfter && token !== tAfter) return
