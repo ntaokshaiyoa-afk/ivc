@@ -1,7 +1,7 @@
 import type { Processor } from './types'
 import { imageProcessor } from '@/processors/image'
 import { videoProcessor } from '@/processors/video'
-import { officeProcessor } from './officeProcessor'
+import { officeProcessor } from '@/processors/officeProcessor'
 
 const processors: Processor[] = [
   officeProcessor,
