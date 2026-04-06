@@ -65,6 +65,7 @@ export async function compressOffice(
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
+  const appliedOverrides: OfficeAppliedOverrides = {} // ★追加
 
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
@@ -119,7 +120,13 @@ export async function compressOffice(
       // ★元より大きいなら元を採用
       if (finalBlob.size >= blob.size) {
         finalBlob = blob
+        // TODO: 元のフォーマットをformatに代入
       }
+
+      appliedOverrides[path] = {
+  format,
+  quality,
+}
     }
 
     // ★ZIPに反映
@@ -146,5 +153,5 @@ export async function compressOffice(
 
   console.log(overrides)
 
-  return { outBlob, officeImages }
+  return { outBlob, officeImages, appliedOverrides }
 }
