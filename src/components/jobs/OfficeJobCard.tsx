@@ -13,11 +13,7 @@ type Props = {
   onRecompress: (jobId: string) => void
 }
 
-export function OfficeJobCard({
-  job,
-  onChangeSettings,
-  onRecompress,
-}: Props) {
+export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
   const settings = job.settings as OfficeSettings
 
   const updateOverride = (
@@ -97,10 +93,7 @@ export function OfficeJobCard({
               </button>
 
               {img.afterUrl && (
-                <ImageCompare
-                  before={img.beforeUrl}
-                  after={img.afterUrl}
-                />
+                <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
               )}
 
               <p className="text-xs mt-1">
