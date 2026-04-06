@@ -91,6 +91,23 @@ export async function compressOffice(
     const quality = 0.7
     const override = overrides[path]
 
+    // ===== manual指定がある場合は最優先 =====
+if (override?.manual) {
+  const format = override.format
+  const quality = override.quality ?? 0.7
+
+  finalBlob = await compressImage(blob, format, quality)
+
+  // サイズ悪化チェック
+  if (finalBlob.size >= blob.size) {
+    finalBlob = blob
+  }
+
+  appliedOverrides[path] = {
+    format,
+    quality,
+  }
+} else {
     // ===== ケース1：αあり → PNG固定 =====
     if (alpha) {
       finalBlob = await compressImage(blob, 'png', 1)
@@ -128,6 +145,7 @@ export async function compressOffice(
         quality,
       }
     }
+}
 
     // ★ZIPに反映
     zip.file(path, finalBlob)
