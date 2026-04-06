@@ -1,4 +1,7 @@
 import JSZip from 'jszip'
+import type { OfficeImage } from '@/domain/processor/types'
+
+const officeImages: OfficeImage[] = []
 
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
@@ -37,8 +40,6 @@ export async function compressOffice(
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
   )
-
-  const officeImages: any[] = []
 
   let done = 0
 
