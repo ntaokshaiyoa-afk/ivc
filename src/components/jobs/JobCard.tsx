@@ -33,6 +33,11 @@ export function JobCard(props: Props) {
       />
     )
   }
-
+  
+  if (job.processorId === 'office') 
+  {
+    return <OfficeJobCard job={job} />
+  }
+  
   return null
 }
