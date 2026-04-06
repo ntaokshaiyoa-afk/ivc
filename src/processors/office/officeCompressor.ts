@@ -1,4 +1,5 @@
 import JSZip from 'jszip'
+import { optimise } from '@jsquash/oxipng'
 import type {
   OfficeImage,
   OfficeOverrides,
@@ -33,8 +34,16 @@ async function compressImage(
   ctx.drawImage(img, 0, 0)
 
   if (format === 'png') {
-    return canvas.convertToBlob({ type: 'image/png' })
-  }
+  const raw = await canvas.convertToBlob({ type: 'image/png' })
+  const buffer = await raw.arrayBuffer()
+
+  // ★ oxipngで最適化
+  const optimised = await optimise(new Uint8Array(buffer), {
+    level: 3, // 0〜6（3がバランス良）
+  })
+
+  return new Blob([optimised], { type: 'image/png' })
+}
 
   if (format === 'webp') {
     return canvas.convertToBlob({
