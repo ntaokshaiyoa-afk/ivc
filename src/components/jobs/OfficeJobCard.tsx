@@ -36,19 +36,14 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
     })
   }
 
-  const compressedSize =
-    job.outputs?.reduce((s, o) => s + o.size, 0) ?? 0
-  
-  const saved = job.originalSize - compressedSize
-  const totalImageOriginal = job.officeImages?.reduce(
-  (s, i) => s + i.originalSize,
-  0,
-) ?? 0
+  const compressedSize = job.outputs?.reduce((s, o) => s + o.size, 0) ?? 0
 
-const totalImageCompressed = job.officeImages?.reduce(
-  (s, i) => s + (i.compressedSize ?? 0),
-  0,
-) ?? 0
+  const saved = job.originalSize - compressedSize
+  const totalImageOriginal =
+    job.officeImages?.reduce((s, i) => s + i.originalSize, 0) ?? 0
+
+  const totalImageCompressed =
+    job.officeImages?.reduce((s, i) => s + (i.compressedSize ?? 0), 0) ?? 0
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">
@@ -58,7 +53,7 @@ const totalImageCompressed = job.officeImages?.reduce(
         画像合計: {formatSize(totalImageOriginal)} →{' '}
         {formatSize(totalImageCompressed)}
       </div>
-      
+
       <div className="text-sm mb-4">
         <div>元サイズ: {formatSize(job.originalSize)}</div>
         <div>圧縮後: {formatSize(compressedSize)}</div>
