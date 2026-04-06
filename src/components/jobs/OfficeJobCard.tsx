@@ -33,8 +33,9 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...((job.settings.officeOverrides as OfficeOverrides | undefined) ??
-                      {}),
+                    ...((job.settings.officeOverrides as
+                      | OfficeOverrides
+                      | undefined) ?? {}),
                     [img.path]: {
                       format,
                       quality: img.quality ?? 0.7,
@@ -60,8 +61,9 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...((job.settings.officeOverrides as OfficeOverrides | undefined) ??
-                      {}),
+                    ...((job.settings.officeOverrides as
+                      | OfficeOverrides
+                      | undefined) ?? {}),
                     [img.path]: {
                       format: img.format ?? 'jpeg',
                       quality,
