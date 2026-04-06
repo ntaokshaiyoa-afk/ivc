@@ -4,7 +4,7 @@ import { compressOffice } from './officeCompressor'
 export const officeProcessor: Processor = {
   id: 'office',
   label: 'Office',
-  kind: 'file',
+  kind: 'document',
 
   accepts: (file) => /\.(docx|pptx|xlsx)$/i.test(file.name),
 
@@ -24,7 +24,7 @@ export const officeProcessor: Processor = {
           mime: file.type,
         },
       ],
-      officeImages, // ← これが重要
+      officeImages, // ★型安全
     }
   },
 }
