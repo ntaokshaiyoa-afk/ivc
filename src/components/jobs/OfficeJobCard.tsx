@@ -31,6 +31,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
         [path]: {
           ...current,
           ...patch,
+          manual: true,
         },
       },
     })
