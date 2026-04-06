@@ -108,6 +108,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
               <p className="text-xs mt-1 text-gray-500">
                 {formatSize(img.originalSize)} →{' '}
                 {formatSize(img.compressedSize ?? 0)}
+                ({formatSize(saved)})
               </p>
             </div>
           )
