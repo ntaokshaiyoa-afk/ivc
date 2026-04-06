@@ -9,9 +9,7 @@ export function OfficeJobCard({ job }: { job: Job }) {
 
       <p className="text-sm mb-4">
         {formatSize(job.originalSize)} →{' '}
-        {formatSize(
-          job.outputs?.reduce((s, o) => s + o.size, 0) ?? 0,
-        )}
+        {formatSize(job.outputs?.reduce((s, o) => s + o.size, 0) ?? 0)}
       </p>
 
       <div className="space-y-6">
@@ -20,10 +18,7 @@ export function OfficeJobCard({ job }: { job: Job }) {
             <p className="text-xs text-gray-500 mb-1">{img.path}</p>
 
             {img.afterUrl && (
-              <ImageCompare
-                before={img.beforeUrl}
-                after={img.afterUrl}
-              />
+              <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
             )}
 
             <p className="text-xs mt-1">
