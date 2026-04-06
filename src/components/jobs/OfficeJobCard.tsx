@@ -93,18 +93,29 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                   })
                 }
               />
+              
+             <button
+  onClick={() => {
+    const next = { ...settings.overrides }
+    delete next[img.path]
 
-              <button
-                onClick={() => {
-                  const next = { ...settings.overrides }
-                  delete next[img.path]
+    onChangeSettings(job.id, { overrides: next })
 
-                  onChangeSettings(job.id, { overrides: next })
-                }}
-              >
-                AUTOに戻す
-              </button>
-
+    // ★ 自動再圧縮
+    onRecompress(job.id)
+  }}
+  className="ml-2 px-2 py-1 text-xs rounded 
+             bg-gray-200 hover:bg-gray-300 
+             text-gray-800 
+             dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+>
+  AUTOに戻す
+</button>
+{!override?.manual && (
+  <span className="ml-2 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+    AUTO
+  </span>
+)}
               {/* 再圧縮 */}
               <button
                 onClick={() => onRecompress(job.id)}
