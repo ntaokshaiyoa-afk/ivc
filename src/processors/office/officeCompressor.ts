@@ -35,16 +35,16 @@ export async function compressOffice(
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
-  
+
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
   )
   if (entries.length === 0) {
-  return {
-    outBlob: file,
-    officeImages: [],
+    return {
+      outBlob: file,
+      officeImages: [],
+    }
   }
-}
 
   let done = 0
 
