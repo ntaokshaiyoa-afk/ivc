@@ -1,4 +1,4 @@
-import type { Processor } from '@/domain/processor/types'
+import type { Processor, OfficeOverrides } from '@/domain/processor/types'
 import { compressOffice } from './officeCompressor'
 
 export const officeProcessor: Processor = {
@@ -11,10 +11,12 @@ export const officeProcessor: Processor = {
   getDefaultSettings: () => ({}),
 
   async process(file, settings, ctx) {
+    const overrides = settings.officeOverrides as OfficeOverrides | undefined
+
     const { outBlob, officeImages } = await compressOffice(
       file,
       ctx?.onProgress,
-      const overrides = settings.officeOverrides,
+      overrides,
     )
 
     return {
@@ -22,10 +24,10 @@ export const officeProcessor: Processor = {
         {
           name: file.name,
           blob: outBlob,
-          mime: file.type,
+          mime: file.type || 'application/octet-stream',
         },
       ],
-      officeImages, // ★型安全
+      officeImages,
     }
   },
 }
