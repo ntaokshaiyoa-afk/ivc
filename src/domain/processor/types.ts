@@ -15,6 +15,10 @@ export type OfficeImageOverride = {
   quality: number
 }
 
+export type OfficeSettings = {
+  overrides: Record<string, OfficeImageOverride>
+}
+
 export type OfficeOverrides = Record<string, OfficeImageOverride>
 
 export type OfficeImage = {
