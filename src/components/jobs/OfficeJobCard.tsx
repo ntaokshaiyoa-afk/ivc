@@ -9,11 +9,7 @@ type Props = {
   onRecompress: (jobId: string) => void
 }
 
-export function OfficeJobCard({
-  job,
-  onChangeSettings,
-  onRecompress,
-}: Props) {
+export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <h3 className="font-bold mb-2">{job.input.name}</h3>
@@ -36,7 +32,8 @@ export function OfficeJobCard({
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...(job.settings.officeOverrides as Record<string, any> ?? {}),
+                    ...((job.settings.officeOverrides as Record<string, any>) ??
+                      {}),
                     [img.path]: {
                       format,
                       quality: img.quality ?? 0.7,
@@ -62,7 +59,8 @@ export function OfficeJobCard({
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...(job.settings.officeOverrides as Record<string, any> ?? {}),
+                    ...((job.settings.officeOverrides as Record<string, any>) ??
+                      {}),
                     [img.path]: {
                       format: img.format ?? 'jpeg',
                       quality,
