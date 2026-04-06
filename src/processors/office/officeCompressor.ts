@@ -1,6 +1,8 @@
 import JSZip from 'jszip'
 import type { OfficeImage } from '@/domain/processor/types'
 import type { OfficeOverrides } from '@/domain/processor/types'
+import type { OfficeImageOverride } from '@/domain/processor/types'
+
 
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
@@ -19,10 +21,10 @@ async function hasAlpha(blob: Blob) {
   return false
 }
 
-async function compressImage(
-  blob: Blob,
-  format: 'jpeg' | 'png' | 'webp',
-  quality: number,
+export async function compressOffice(
+  file: File,
+  onProgress?: (p: number) => void,
+  overrides: Record<string, OfficeImageOverride> = {},
 ) {
   const img = await createImageBitmap(blob)
   const canvas = new OffscreenCanvas(img.width, img.height)
@@ -44,6 +46,25 @@ async function compressImage(
     type: 'image/jpeg',
     quality,
   })
+}
+
+async function compressImage(
+  blob: Blob,
+  format: 'jpeg' | 'png' | 'webp',
+  quality: number,
+) {
+  const img = await createImageBitmap(blob)
+  const canvas = new OffscreenCanvas(img.width, img.height)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0)
+
+  if (format === 'png') {
+    return canvas.convertToBlob({ type: 'image/png' })
+  }
+  if (format === 'webp') {
+    return canvas.convertToBlob({ type: 'image/webp', quality })
+  }
+  return canvas.convertToBlob({ type: 'image/jpeg', quality })
 }
 
 export async function compressOffice(
@@ -72,13 +93,11 @@ export async function compressOffice(
     const isPng = path.toLowerCase().endsWith('.png')
     const alpha = isPng ? await hasAlpha(blob) : false
 
-    // ★デフォルト
-    const override = overrides?.[path]
-
+    const override = overrides[path]
+    
     const format = override?.format ?? (alpha ? 'png' : 'jpeg')
-
     const quality = override?.quality ?? 0.7
-
+    
     const compressed = await compressImage(blob, format, quality)
 
     officeImages.push({
