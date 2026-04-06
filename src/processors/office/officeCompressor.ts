@@ -20,33 +20,6 @@ async function hasAlpha(blob: Blob) {
   return false
 }
 
-export async function compressOffice(
-  file: File,
-  onProgress?: (p: number) => void,
-  overrides: Record<string, OfficeImageOverride> = {},
-) {
-  const img = await createImageBitmap(blob)
-  const canvas = new OffscreenCanvas(img.width, img.height)
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0)
-
-  if (format === 'png') {
-    return canvas.convertToBlob({ type: 'image/png' })
-  }
-
-  if (format === 'webp') {
-    return canvas.convertToBlob({
-      type: 'image/webp',
-      quality,
-    })
-  }
-
-  return canvas.convertToBlob({
-    type: 'image/jpeg',
-    quality,
-  })
-}
-
 async function compressImage(
   blob: Blob,
   format: 'jpeg' | 'png' | 'webp',
