@@ -14,15 +14,15 @@ export const imageProcessor: Processor = {
 
     try {
       const blob = await compressImageInWorker(file, quality, codec)
-      
+
       // ★比較
       const finalBlob = blob.size < file.size ? blob : file
-      
+
       ctx.onProgress?.(100)
-      
+
       const ext = codec === 'webp-lossless' ? 'webp' : codec
       const outName = file.name.replace(/\.\w+$/, `.${ext}`)
-      
+
       return {
         outputs: [
           {
@@ -34,7 +34,8 @@ export const imageProcessor: Processor = {
       }
     } catch (e: unknown) {
       // キャンセルはエラー扱いしない（必要なら進捗も戻す）
-      if (e instanceof DOMException && e.name === 'AbortError') return { outputs: [] }
+      if (e instanceof DOMException && e.name === 'AbortError')
+        return { outputs: [] }
       if (e instanceof Error && e.name === 'AbortError') return { outputs: [] } // 念のため
       throw e
     }
