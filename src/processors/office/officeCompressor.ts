@@ -69,22 +69,21 @@ export async function compressOffice(
 
     const isPng = path.toLowerCase().endsWith('.png')
     const alpha = isPng ? await hasAlpha(blob) : false
-    
+
     // ★デフォルト
-    const format: 'jpeg' | 'png' | 'webp' =
-      alpha ? 'png' : 'jpeg'
-    
+    const format: 'jpeg' | 'png' | 'webp' = alpha ? 'png' : 'jpeg'
+
     const quality = 0.7
-    
+
     const compressed = await compressImage(blob, format, quality)
-    
+
     officeImages.push({
       path,
       beforeUrl: URL.createObjectURL(blob),
       afterUrl: URL.createObjectURL(compressed),
       originalSize: blob.size,
       compressedSize: compressed.size,
-    
+
       // ★追加
       format,
       quality,
