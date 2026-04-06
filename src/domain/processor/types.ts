@@ -32,7 +32,9 @@ export type ProcessResult = {
   officeImages?: OfficeImage[]
 }
 
-export type ProcessorSettings = Record<string, unknown>
+export type ProcessorSettings = {
+  officeOverrides?: OfficeOverrides
+} & Record<string, unknown>
 
 export type Processor = {
   id: string
