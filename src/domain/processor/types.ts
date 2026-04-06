@@ -14,6 +14,8 @@ export type OfficeImage = {
   afterUrl: string
   originalSize: number
   compressedSize: number
+  format?: 'jpeg' | 'png' | 'webp'
+  quality?: number
 }
 
 export type ProcessResult = {
