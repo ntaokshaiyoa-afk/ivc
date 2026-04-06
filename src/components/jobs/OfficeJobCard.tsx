@@ -95,11 +95,20 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
               {/* 再圧縮 */}
               <button
-                onClick={() => onRecompress(job.id)}
-                className="ml-2 px-2 py-1 bg-blue-500 text-white rounded"
-              >
-                再圧縮
-              </button>
+  onClick={() => onRecompress(job.id)}
+  disabled={job.status === 'processing'}
+  className="ml-2 px-3 py-1 rounded text-white flex items-center gap-2
+    bg-blue-500 disabled:bg-gray-400"
+>
+  {job.status === 'processing' ? (
+    <>
+      <ProgressDonut progress={job.progress} />
+      処理中
+    </>
+  ) : (
+    '再圧縮'
+  )}
+</button>
 
               {img.afterUrl && (
                 <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
@@ -119,5 +128,38 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
         })}
       </div>
     </div>
+  )
+}
+
+
+function ProgressDonut({ progress }: { progress: number }) {
+  const radius = 10
+  const stroke = 3
+  const normalizedRadius = radius - stroke * 2
+  const circumference = normalizedRadius * 2 * Math.PI
+  const strokeDashoffset =
+    circumference - (progress / 100) * circumference
+
+  return (
+    <svg height={radius * 2} width={radius * 2}>
+      <circle
+        stroke="#e5e7eb"
+        fill="transparent"
+        strokeWidth={stroke}
+        r={normalizedRadius}
+        cx={radius}
+        cy={radius}
+      />
+      <circle
+        stroke="#ffffff"
+        fill="transparent"
+        strokeWidth={stroke}
+        strokeDasharray={circumference + ' ' + circumference}
+        style={{ strokeDashoffset, transition: 'stroke-dashoffset 0.2s' }}
+        r={normalizedRadius}
+        cx={radius}
+        cy={radius}
+      />
+    </svg>
   )
 }
