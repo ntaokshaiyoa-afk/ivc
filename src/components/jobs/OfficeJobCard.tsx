@@ -1,8 +1,13 @@
 import type { Job } from '@/domain/job/types'
 import { ImageCompare } from '@/components/Preview/Compare/ImageCompare'
 import { formatSize } from '@/shared/utils/format'
+import type { OfficeImageFormat } from '@/domain/processor/types'
 
 export function OfficeJobCard({ job }: { job: Job }) {
+  onChange={(e) => {
+  img.format = e.target.value as OfficeImageFormat
+}}
+  
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <h3 className="font-bold mb-2">{job.input.name}</h3>
