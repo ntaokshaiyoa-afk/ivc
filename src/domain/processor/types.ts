@@ -21,6 +21,7 @@ export type OfficeImageFormat = 'jpeg' | 'png' | 'webp'
 export type OfficeImageOverride = {
   format: OfficeImageFormat
   quality: number
+  manual?: boolean // ★追加
 }
 
 export type OfficeSettings = {
