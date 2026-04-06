@@ -1,8 +1,6 @@
 import JSZip from 'jszip'
 import type { OfficeImage } from '@/domain/processor/types'
 
-const officeImages: OfficeImage[] = []
-
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
 }
@@ -36,10 +34,17 @@ export async function compressOffice(
   onProgress?: (p: number) => void,
 ) {
   const zip = await JSZip.loadAsync(file)
-
+  const officeImages: OfficeImage[] = []
+  
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
   )
+  if (entries.length === 0) {
+  return {
+    outBlob: file,
+    officeImages: [],
+  }
+}
 
   let done = 0
 
