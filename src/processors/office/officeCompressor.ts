@@ -3,7 +3,7 @@ import { optimise } from '@jsquash/oxipng'
 import type {
   OfficeImage,
   OfficeOverrides,
-  OfficeImageOverride,
+ // OfficeImageOverride,
 } from '@/domain/processor/types'
 
 function isImage(path: string) {
@@ -87,7 +87,7 @@ export async function compressOffice(
 
     let finalBlob: Blob
     let format: 'jpeg' | 'png'
-    let quality = 0.7
+    const quality = 0.7
 
     // ===== ケース1：αあり → PNG固定 =====
     if (alpha) {
@@ -135,5 +135,7 @@ export async function compressOffice(
 
   const outBlob = await zip.generateAsync({ type: 'blob' })
 
+  console.log(overrides)
+  
   return { outBlob, officeImages }
 }
