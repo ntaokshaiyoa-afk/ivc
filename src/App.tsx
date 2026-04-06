@@ -119,9 +119,12 @@ export default function App() {
           outputs,
           officeImages: res.officeImages,
           settings: {
-            ...job.settings,
-            overrides: res.appliedOverrides ?? job.settings.overrides,
-          },
+  ...job.settings,
+  overrides: {
+    ...job.settings.overrides,
+    ...res.appliedOverrides,
+  },
+},
           status: 'done',
           progress: 100,
         })
