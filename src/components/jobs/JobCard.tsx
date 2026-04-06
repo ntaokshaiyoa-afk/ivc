@@ -1,6 +1,7 @@
 import type { Job } from '@/domain/job/types'
 import { ImageJobCard } from './ImageJobCard'
 import { VideoJobCard } from './VideoJobCard'
+import { OfficeJobCard } from './OfficeJobCard'
 
 type Props = {
   job: Job
