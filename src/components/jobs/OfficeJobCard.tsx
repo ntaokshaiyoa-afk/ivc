@@ -2,6 +2,7 @@ import type { Job } from '@/domain/job/types'
 import { ImageCompare } from '@/components/Preview/Compare/ImageCompare'
 import { formatSize } from '@/shared/utils/format'
 import type { OfficeImageFormat } from '@/domain/processor/types'
+import type { OfficeOverrides } from '@/domain/processor/types'
 
 type Props = {
   job: Job
@@ -32,7 +33,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...((job.settings.officeOverrides as Record<string, any>) ??
+                    ...((job.settings.officeOverrides as OfficeOverrides | undefined) ??
                       {}),
                     [img.path]: {
                       format,
@@ -59,7 +60,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
                 onChangeSettings(job.id, {
                   officeOverrides: {
-                    ...((job.settings.officeOverrides as Record<string, any>) ??
+                    ...((job.settings.officeOverrides as OfficeOverrides | undefined) ??
                       {}),
                     [img.path]: {
                       format: img.format ?? 'jpeg',
