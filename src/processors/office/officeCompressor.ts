@@ -71,58 +71,58 @@ export async function compressOffice(
   let done = 0
 
   for (const [path, entry] of entries) {
-  const blob = await entry.async('blob')
+    const blob = await entry.async('blob')
 
-  const isPng = path.toLowerCase().endsWith('.png')
-  const alpha = isPng ? await hasAlpha(blob) : false
+    const isPng = path.toLowerCase().endsWith('.png')
+    const alpha = isPng ? await hasAlpha(blob) : false
 
-  let finalBlob: Blob
-  let format: 'jpeg' | 'png'
-  let quality = 0.7
+    let finalBlob: Blob
+    let format: 'jpeg' | 'png'
+    let quality = 0.7
 
-  // ===== ケース1：αあり → PNG固定 =====
-  if (alpha) {
-    finalBlob = await compressImage(blob, 'png', 1)
-    format = 'png'
-  } else {
-    // ===== ケース2：JPEG vs PNG 比較 =====
-    const jpegBlob = await compressImage(blob, 'jpeg', quality)
-    const pngBlob = await compressImage(blob, 'png', 1)
-
-    // ★小さい方を採用
-    if (jpegBlob.size <= pngBlob.size) {
-      finalBlob = jpegBlob
-      format = 'jpeg'
-    } else {
-      finalBlob = pngBlob
+    // ===== ケース1：αあり → PNG固定 =====
+    if (alpha) {
+      finalBlob = await compressImage(blob, 'png', 1)
       format = 'png'
+    } else {
+      // ===== ケース2：JPEG vs PNG 比較 =====
+      const jpegBlob = await compressImage(blob, 'jpeg', quality)
+      const pngBlob = await compressImage(blob, 'png', 1)
+
+      // ★小さい方を採用
+      if (jpegBlob.size <= pngBlob.size) {
+        finalBlob = jpegBlob
+        format = 'jpeg'
+      } else {
+        finalBlob = pngBlob
+        format = 'png'
+      }
+
+      // ★元より大きいなら元を採用
+      if (finalBlob.size >= blob.size) {
+        finalBlob = blob
+      }
     }
 
-    // ★元より大きいなら元を採用
-    if (finalBlob.size >= blob.size) {
-      finalBlob = blob
-    }
+    // ★ZIPに反映
+    zip.file(path, finalBlob)
+
+    officeImages.push({
+      path,
+      beforeUrl: URL.createObjectURL(blob),
+      afterUrl: URL.createObjectURL(finalBlob),
+      originalSize: blob.size,
+      compressedSize: finalBlob.size,
+
+      format,
+      quality,
+
+      skipped: finalBlob === blob,
+    })
+
+    done++
+    onProgress?.((done / entries.length) * 100)
   }
-
-  // ★ZIPに反映
-  zip.file(path, finalBlob)
-
-  officeImages.push({
-    path,
-    beforeUrl: URL.createObjectURL(blob),
-    afterUrl: URL.createObjectURL(finalBlob),
-    originalSize: blob.size,
-    compressedSize: finalBlob.size,
-
-    format,
-    quality,
-
-    skipped: finalBlob === blob,
-  })
-
-  done++
-  onProgress?.((done / entries.length) * 100)
-}
 
   const outBlob = await zip.generateAsync({ type: 'blob' })
 
