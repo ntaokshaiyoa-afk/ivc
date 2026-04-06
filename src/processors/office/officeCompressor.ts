@@ -3,7 +3,6 @@ import type { OfficeImage } from '@/domain/processor/types'
 import type { OfficeOverrides } from '@/domain/processor/types'
 import type { OfficeImageOverride } from '@/domain/processor/types'
 
-
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
 }
@@ -94,10 +93,10 @@ export async function compressOffice(
     const alpha = isPng ? await hasAlpha(blob) : false
 
     const override = overrides[path]
-    
+
     const format = override?.format ?? (alpha ? 'png' : 'jpeg')
     const quality = override?.quality ?? 0.7
-    
+
     const compressed = await compressImage(blob, format, quality)
 
     officeImages.push({
