@@ -100,31 +100,31 @@ export default function App() {
 
       try {
         const res = await processor.process(job.input, job.settings, {
-  onProgress: (p) => {
-    const t = latestTokenRef.current.get(jobId)
-    if (token && t && token !== t) return
-    updateJob(jobId, { progress: p, status: 'processing' })
-  },
-})
+          onProgress: (p) => {
+            const t = latestTokenRef.current.get(jobId)
+            if (token && t && token !== t) return
+            updateJob(jobId, { progress: p, status: 'processing' })
+          },
+        })
 
-const tAfter = latestTokenRef.current.get(jobId)
-if (token && tAfter && token !== tAfter) return
+        const tAfter = latestTokenRef.current.get(jobId)
+        if (token && tAfter && token !== tAfter) return
 
-const outputs = res.outputs.map((o) => ({
-  name: o.name,
-  blob: o.blob,
-  mime: o.mime,
-  size: o.blob.size,
-  url: URL.createObjectURL(o.blob),
-}))
+        const outputs = res.outputs.map((o) => ({
+          name: o.name,
+          blob: o.blob,
+          mime: o.mime,
+          size: o.blob.size,
+          url: URL.createObjectURL(o.blob),
+        }))
 
-// ★ここ追加
-updateJob(jobId, {
-  outputs,
-  officeImages: (res as any).officeImages, // ← これ
-  status: 'done',
-  progress: 100,
-})
+        // ★ここ追加
+        updateJob(jobId, {
+          outputs,
+          officeImages: (res as any).officeImages, // ← これ
+          status: 'done',
+          progress: 100,
+        })
       } catch (e) {
         const tAfter = latestTokenRef.current.get(jobId)
         if (token && tAfter && token !== tAfter) return
