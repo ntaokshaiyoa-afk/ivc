@@ -54,14 +54,6 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
         {formatSize(totalImageCompressed)}
       </div>
 
-      <div className="text-sm mb-4">
-        <div>元サイズ: {formatSize(job.originalSize)}</div>
-        <div>圧縮後: {formatSize(compressedSize)}</div>
-        <div className="text-green-600 font-semibold">
-          削減: {formatSize(saved)}
-        </div>
-      </div>
-
       <div className="space-y-6">
         {job.officeImages?.map((img) => {
           const override = settings.overrides[img.path] ?? {
@@ -113,7 +105,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
               )}
 
-              <p className="text-xs mt-1">
+              <p className="text-xs mt-1 text-gray-500">
                 {formatSize(img.originalSize)} →{' '}
                 {formatSize(img.compressedSize ?? 0)}
               </p>
