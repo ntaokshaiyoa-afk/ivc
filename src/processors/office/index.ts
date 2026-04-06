@@ -1,4 +1,5 @@
-import type { Processor, OfficeOverrides } from '@/domain/processor/types'
+import type { Processor } from '@/domain/processor/types'
+import type { OfficeSettings } from '@/domain/processor/types'
 import { compressOffice } from './officeCompressor'
 
 export const officeProcessor: Processor = {
@@ -8,15 +9,17 @@ export const officeProcessor: Processor = {
 
   accepts: (file) => /\.(docx|pptx|xlsx)$/i.test(file.name),
 
-  getDefaultSettings: () => ({}),
+  getDefaultSettings: () => ({
+    overrides: {},
+  }),
 
   async process(file, settings, ctx) {
-    const overrides = settings.officeOverrides as OfficeOverrides | undefined
+    const s = settings as OfficeSettings
 
     const { outBlob, officeImages } = await compressOffice(
       file,
       ctx?.onProgress,
-      overrides,
+      s.overrides,
     )
 
     return {
@@ -24,7 +27,7 @@ export const officeProcessor: Processor = {
         {
           name: file.name,
           blob: outBlob,
-          mime: file.type || 'application/octet-stream',
+          mime: file.type,
         },
       ],
       officeImages,
