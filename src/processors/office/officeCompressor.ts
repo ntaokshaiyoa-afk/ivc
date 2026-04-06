@@ -92,60 +92,60 @@ export async function compressOffice(
     const override = overrides[path]
 
     // ===== manual指定がある場合は最優先 =====
-if (override?.manual) {
-  const format = override.format
-  const quality = override.quality ?? 0.7
+    if (override?.manual) {
+      const format = override.format
+      const quality = override.quality ?? 0.7
 
-  finalBlob = await compressImage(blob, format, quality)
+      finalBlob = await compressImage(blob, format, quality)
 
-  // サイズ悪化チェック
-  if (finalBlob.size >= blob.size) {
-    finalBlob = blob
-  }
-
-  appliedOverrides[path] = {
-    format,
-    quality,
-  }
-} else {
-    // ===== ケース1：αあり → PNG固定 =====
-    if (alpha) {
-      finalBlob = await compressImage(blob, 'png', 1)
-      format = 'png'
-    } else if (override?.format) {
-      // ★ユーザー指定優先
-      finalBlob = await compressImage(
-        blob,
-        override.format,
-        override.quality ?? 0.7,
-      )
-      format = override.format
-    } else {
-      // ===== ケース2：JPEG vs PNG 比較 =====
-      const jpegBlob = await compressImage(blob, 'jpeg', quality)
-      const pngBlob = await compressImage(blob, 'png', 1)
-
-      // ★小さい方を採用
-      if (jpegBlob.size <= pngBlob.size) {
-        finalBlob = jpegBlob
-        format = 'jpeg'
-      } else {
-        finalBlob = pngBlob
-        format = 'png'
-      }
-
-      // ★元より大きいなら元を採用
+      // サイズ悪化チェック
       if (finalBlob.size >= blob.size) {
         finalBlob = blob
-        // TODO: 元のフォーマットをformatに代入
       }
 
       appliedOverrides[path] = {
         format,
         quality,
       }
+    } else {
+      // ===== ケース1：αあり → PNG固定 =====
+      if (alpha) {
+        finalBlob = await compressImage(blob, 'png', 1)
+        format = 'png'
+      } else if (override?.format) {
+        // ★ユーザー指定優先
+        finalBlob = await compressImage(
+          blob,
+          override.format,
+          override.quality ?? 0.7,
+        )
+        format = override.format
+      } else {
+        // ===== ケース2：JPEG vs PNG 比較 =====
+        const jpegBlob = await compressImage(blob, 'jpeg', quality)
+        const pngBlob = await compressImage(blob, 'png', 1)
+
+        // ★小さい方を採用
+        if (jpegBlob.size <= pngBlob.size) {
+          finalBlob = jpegBlob
+          format = 'jpeg'
+        } else {
+          finalBlob = pngBlob
+          format = 'png'
+        }
+
+        // ★元より大きいなら元を採用
+        if (finalBlob.size >= blob.size) {
+          finalBlob = blob
+          // TODO: 元のフォーマットをformatに代入
+        }
+
+        appliedOverrides[path] = {
+          format,
+          quality,
+        }
+      }
     }
-}
 
     // ★ZIPに反映
     zip.file(path, finalBlob)
