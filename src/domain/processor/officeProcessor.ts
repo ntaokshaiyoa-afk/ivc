@@ -48,8 +48,8 @@ export const officeProcessor = {
   async process(file: File, _settings: unknown, ctx?: ProcessContext) {
     const zip = await JSZip.loadAsync(file)
 
-    const entries = Object.entries(zip.files).filter(([path]) =>
-      path.includes('/media/') && isImage(path),
+    const entries = Object.entries(zip.files).filter(
+      ([path]) => path.includes('/media/') && isImage(path),
     )
 
     const officeImages: any[] = []
@@ -86,8 +86,7 @@ export const officeProcessor = {
         {
           name: file.name,
           blob: outBlob,
-          mime:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         },
       ],
       officeImages,
