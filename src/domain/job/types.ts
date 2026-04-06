@@ -1,3 +1,4 @@
+import type { OfficeImage } from '@/domain/processor/types'
 export type JobStatus = 'waiting' | 'processing' | 'done' | 'error'
 
 export type OutputAsset = {
