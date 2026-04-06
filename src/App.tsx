@@ -172,14 +172,6 @@ export default function App() {
     },
     [],
   )
-  onChangeSettings(job.id, {
-    officeOverrides: {
-      [img.path]: {
-        format: img.format,
-        quality: img.quality,
-      },
-    },
-  })
 
   const compressAll = async () => {
     setIsProcessing(true)
