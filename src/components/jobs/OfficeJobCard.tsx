@@ -109,6 +109,11 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 {formatSize(img.originalSize)} →{' '}
                 {formatSize(img.compressedSize ?? 0)}({formatSize(saved)})
               </p>
+              {img.skipped && (
+                <p className="text-xs text-yellow-500">
+                  ※ 圧縮するとサイズが増えるためスキップ
+                </p>
+              )}
             </div>
           )
         })}
