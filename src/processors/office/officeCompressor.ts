@@ -18,15 +18,31 @@ async function hasAlpha(blob: Blob) {
   return false
 }
 
-async function compressImage(blob: Blob, keepPng: boolean) {
+async function compressImage(
+  blob: Blob,
+  format: 'jpeg' | 'png' | 'webp',
+  quality: number,
+) {
   const img = await createImageBitmap(blob)
   const canvas = new OffscreenCanvas(img.width, img.height)
   const ctx = canvas.getContext('2d')!
   ctx.drawImage(img, 0, 0)
 
-  return keepPng
-    ? canvas.convertToBlob({ type: 'image/png' })
-    : canvas.convertToBlob({ type: 'image/jpeg', quality: 0.7 })
+  if (format === 'png') {
+    return canvas.convertToBlob({ type: 'image/png' })
+  }
+
+  if (format === 'webp') {
+    return canvas.convertToBlob({
+      type: 'image/webp',
+      quality,
+    })
+  }
+
+  return canvas.convertToBlob({
+    type: 'image/jpeg',
+    quality,
+  })
 }
 
 export async function compressOffice(
@@ -53,17 +69,25 @@ export async function compressOffice(
 
     const isPng = path.toLowerCase().endsWith('.png')
     const alpha = isPng ? await hasAlpha(blob) : false
-
-    const compressed = await compressImage(blob, alpha)
-
-    zip.file(path, compressed)
-
+    
+    // ★デフォルト
+    const format: 'jpeg' | 'png' | 'webp' =
+      alpha ? 'png' : 'jpeg'
+    
+    const quality = 0.7
+    
+    const compressed = await compressImage(blob, format, quality)
+    
     officeImages.push({
       path,
       beforeUrl: URL.createObjectURL(blob),
       afterUrl: URL.createObjectURL(compressed),
       originalSize: blob.size,
       compressedSize: compressed.size,
+    
+      // ★追加
+      format,
+      quality,
     })
 
     done++
