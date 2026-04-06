@@ -1,8 +1,14 @@
 import type { Processor } from './types'
 import { imageProcessor } from '@/processors/image'
 import { videoProcessor } from '@/processors/video'
+import { officeProcessor } from './officeProcessor'
 
-const processors: Processor[] = [imageProcessor, videoProcessor]
+
+const processors: Processor[] = [
+  officeProcessor,
+  imageProcessor, 
+  videoProcessor
+]
 
 export function detectProcessor(file: File): Processor | null {
   return processors.find((p) => p.accepts(file)) ?? null
