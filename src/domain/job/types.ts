@@ -8,6 +8,14 @@ export type OutputAsset = {
   url?: string // ObjectURL（必要時に作る）
 }
 
+export type OfficeImage = {
+  path: string
+  beforeUrl: string
+  afterUrl?: string
+  originalSize: number
+  compressedSize?: number
+}
+
 export type Job = {
   id: string
   input: File
@@ -22,4 +30,6 @@ export type Job = {
 
   outputs?: OutputAsset[]
   error?: string
+
+  officeImages?: OfficeImage[]
 }
