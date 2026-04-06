@@ -8,6 +8,14 @@ export type ProcessOutput = {
   mime: string
 }
 
+export type OfficeAppliedOverrides = Record<
+  string,
+  {
+    format: OfficeImageFormat
+    quality: number
+  }
+>
+
 export type OfficeImageFormat = 'jpeg' | 'png' | 'webp'
 
 export type OfficeImageOverride = {
