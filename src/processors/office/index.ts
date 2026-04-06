@@ -10,12 +10,12 @@ export const officeProcessor: Processor = {
 
   getDefaultSettings: () => ({}),
 
-async process(file, settings, ctx) {
-  const { outBlob, officeImages } = await compressOffice(
-    file,
-    ctx?.onProgress,
-    (settings as any).officeOverrides,
-  )
+  async process(file, settings, ctx) {
+    const { outBlob, officeImages } = await compressOffice(
+      file,
+      ctx?.onProgress,
+      (settings as any).officeOverrides,
+    )
 
     return {
       outputs: [
