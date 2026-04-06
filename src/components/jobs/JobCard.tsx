@@ -35,15 +35,15 @@ export function JobCard(props: Props) {
     )
   }
 
-if (job.processorId === 'office') {
-  return (
-    <OfficeJobCard
-      job={job}
-      onChangeSettings={props.onChangeSettings}
-      onRecompress={props.onRecompress}
-    />
-  )
-}
+  if (job.processorId === 'office') {
+    return (
+      <OfficeJobCard
+        job={job}
+        onChangeSettings={props.onChangeSettings}
+        onRecompress={props.onRecompress}
+      />
+    )
+  }
 
   return null
 }
