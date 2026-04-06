@@ -8,8 +8,17 @@ export type ProcessOutput = {
   mime: string
 }
 
+export type OfficeImage = {
+  path: string
+  beforeUrl: string
+  afterUrl: string
+  originalSize: number
+  compressedSize: number
+}
+
 export type ProcessResult = {
   outputs: ProcessOutput[]
+  officeImages?: OfficeImage[]
 }
 
 export type ProcessorSettings = Record<string, unknown>
