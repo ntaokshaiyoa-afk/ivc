@@ -95,15 +95,15 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
               />
 
               <button
-  onClick={() => {
-    const next = { ...settings.overrides }
-    delete next[img.path]
+                onClick={() => {
+                  const next = { ...settings.overrides }
+                  delete next[img.path]
 
-    onChangeSettings(job.id, { overrides: next })
-  }}
->
-  AUTOに戻す
-</button>
+                  onChangeSettings(job.id, { overrides: next })
+                }}
+              >
+                AUTOに戻す
+              </button>
 
               {/* 再圧縮 */}
               <button
