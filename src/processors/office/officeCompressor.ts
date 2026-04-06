@@ -95,14 +95,14 @@ export async function compressOffice(
       finalBlob = await compressImage(blob, 'png', 1)
       format = 'png'
     } else if (override?.format) {
-  // ★ユーザー指定優先
-  finalBlob = await compressImage(
-    blob,
-    override.format,
-    override.quality ?? 0.7,
-  )
-  format = override.format
-}else {
+      // ★ユーザー指定優先
+      finalBlob = await compressImage(
+        blob,
+        override.format,
+        override.quality ?? 0.7,
+      )
+      format = override.format
+    } else {
       // ===== ケース2：JPEG vs PNG 比較 =====
       const jpegBlob = await compressImage(blob, 'jpeg', quality)
       const pngBlob = await compressImage(blob, 'png', 1)
