@@ -4,9 +4,9 @@ import { videoProcessor } from '@/processors/video'
 import { officeProcessor } from '@/processors/office'
 
 export const processors: Processor[] = [
-  imageProcessor, 
+  imageProcessor,
   videoProcessor,
-  officeProcessor
+  officeProcessor,
 ]
 
 export function detectProcessor(file: File): Processor | undefined {
