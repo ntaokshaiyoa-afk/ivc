@@ -16,7 +16,7 @@ export function OfficeJobCard({ job }: { job: Job }) {
         <option value="png">PNG</option>
         <option value="webp">WebP</option>
       </select>
-      
+
       <input
         type="range"
         min={0.1}
