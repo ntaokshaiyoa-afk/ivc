@@ -287,7 +287,7 @@ export default function App() {
               <input
                 type="file"
                 multiple
-                accept="image/*,video/*"
+                accept="image/*,video/*,.docx,.pptx,.xlsx,.pdf"
                 onChange={(e) => handleFiles(e.target.files)}
                 className="block w-full text-sm
                 file:mr-4 file:py-3 file:px-6
