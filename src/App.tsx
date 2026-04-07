@@ -115,19 +115,26 @@ export default function App() {
           url: URL.createObjectURL(o.blob),
         }))
 
-        updateJob(jobId, {
-          outputs,
-          officeImages: res.officeImages,
-          settings: {
-            ...job.settings,
-            overrides: {
-              ...job.settings.overrides,
-              ...res.appliedOverrides,
-            },
-          },
-          status: 'done',
-          progress: 100,
-        })
+        const currentOverrides = job.settings.overrides ?? {}
+
+const nextOverrides = Object.fromEntries(
+  Object.entries(currentOverrides).filter(
+    ([, v]) => v.manual // ★ manualだけ残す
+  )
+)
+
+updateJob(jobId, {
+  outputs,
+  officeImages: res.officeImages,
+
+  settings: {
+    ...job.settings,
+    overrides: nextOverrides, // ★ AUTO結果は保存しない
+  },
+
+  status: 'done',
+  progress: 100,
+})
       } catch (e) {
         const tAfter = latestTokenRef.current.get(jobId)
         if (token && tAfter && token !== tAfter) return
