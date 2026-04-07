@@ -20,6 +20,7 @@ export const officeProcessor: Processor = {
       file,
       ctx?.onProgress,
       s.overrides,
+      s.autoOverrides,
     )
 
     return {
