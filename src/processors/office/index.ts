@@ -11,16 +11,17 @@ export const officeProcessor: Processor = {
 
   getDefaultSettings: () => ({
     overrides: {},
+    autoOverrides: {}, // ★追加
   }),
 
   async process(file, settings, ctx) {
     const s = settings as OfficeSettings
 
-    const { outBlob, officeImages, appliedOverrides } = await compressOffice(
+    const { outBlob, officeImages, autoOverrides } = await compressOffice(
       file,
       ctx?.onProgress,
       s.overrides,
-      s.autoOverrides,
+      s.autoOverrides ?? {}, // ★安全化
     )
 
     return {
@@ -32,7 +33,7 @@ export const officeProcessor: Processor = {
         },
       ],
       officeImages,
-      appliedOverrides,
+      autoOverrides,
     }
   },
 }
