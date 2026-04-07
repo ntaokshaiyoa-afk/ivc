@@ -66,6 +66,15 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
             <div key={img.path}>
               <p className="text-xs text-gray-500 mb-1">{img.path}</p>
 
+              <p className="text-xs mt-1 text-gray-500">
+                {formatSize(img.originalSize)} →{' '}
+                {formatSize(img.compressedSize ?? 0)}({formatSize(saved)})
+              </p>
+              {img.skipped && (
+                <p className="text-xs text-yellow-500">
+                  ※ 圧縮するとサイズが増えるためスキップ
+                </p>
+              )}
               {/* フォーマット選択 */}
               <select
                 value={override.format}
@@ -93,7 +102,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                   })
                 }
               />
-
+              
               <button
                 onClick={() => {
                   const next = { ...settings.overrides }
@@ -137,15 +146,6 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
               )}
 
-              <p className="text-xs mt-1 text-gray-500">
-                {formatSize(img.originalSize)} →{' '}
-                {formatSize(img.compressedSize ?? 0)}({formatSize(saved)})
-              </p>
-              {img.skipped && (
-                <p className="text-xs text-yellow-500">
-                  ※ 圧縮するとサイズが増えるためスキップ
-                </p>
-              )}
             </div>
           )
         })}
