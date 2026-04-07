@@ -42,12 +42,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
   const totalImageCompressed =
     job.officeImages?.reduce((s, i) => s + (i.compressedSize ?? 0), 0) ?? 0
-
-  const override = settings.overrides[img.path]
-  const auto = settings.autoOverrides?.[img.path]
-
-  const current = override?.manual ? override : auto
-
+  
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <h3 className="font-bold mb-2">{job.input.name}</h3>
@@ -59,10 +54,13 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
       <div className="space-y-6">
         {job.officeImages?.map((img) => {
-          const override = settings.overrides[img.path] ?? {
-            format: 'jpeg',
-            quality: 0.7,
-          }
+  const override = settings.overrides[img.path]
+  const auto = settings.autoOverrides?.[img.path]
+
+  const current = override?.manual ? override : auto ?? {
+    format: 'jpeg',
+    quality: 0.7,
+  }
 
           const saved =
             (img.compressedSize ?? img.originalSize) - img.originalSize
@@ -83,7 +81,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
               )}
               {/* フォーマット選択 */}
               <select
-                value={current?.format}
+  value={current.format}
                 onChange={(e) =>
                   updateOverride(img.path, {
                     format: e.target.value as OfficeImageFormat,
@@ -97,7 +95,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 min={0.1}
                 max={1}
                 step={0.05}
-                value={override.quality}
+                value={current.quality}
                 onChange={(e) =>
                   updateOverride(img.path, {
                     quality: Number(e.target.value),
