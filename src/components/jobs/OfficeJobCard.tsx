@@ -43,6 +43,11 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
   const totalImageCompressed =
     job.officeImages?.reduce((s, i) => s + (i.compressedSize ?? 0), 0) ?? 0
 
+  const override = settings.overrides[img.path]
+const auto = settings.autoOverrides?.[img.path]
+
+const current = override?.manual ? override : auto
+  
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <h3 className="font-bold mb-2">{job.input.name}</h3>
@@ -78,13 +83,13 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
               )}
               {/* フォーマット選択 */}
               <select
-                value={override.format}
-                onChange={(e) =>
-                  updateOverride(img.path, {
-                    format: e.target.value as OfficeImageFormat,
-                  })
-                }
-              >
+  value={current?.format}
+  onChange={(e) =>
+    updateOverride(img.path, {
+      format: e.target.value as OfficeImageFormat,
+    })
+  }
+/>
                 <option value="jpeg">JPEG</option>
                 <option value="png">PNG</option>
                 <option value="webp">WebP</option>
@@ -106,14 +111,14 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
               <button
                 onClick={() => {
-                  const next = { ...settings.overrides }
-                  delete next[img.path]
+  const next = { ...settings.overrides }
+  delete next[img.path]
 
-                  onChangeSettings(job.id, { overrides: next })
+  onChangeSettings(job.id, { overrides: next })
 
-                  // ★ 自動再圧縮
-                  onRecompress(job.id)
-                }}
+  // ★Auto設定で再圧縮
+  onRecompress(job.id)
+}}
                 className="ml-2 px-2 py-1 text-xs rounded 
              bg-gray-200 hover:bg-gray-300 
              text-gray-800 
@@ -122,10 +127,10 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 AUTOに戻す
               </button>
               {!override?.manual && (
-                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
-                  AUTO
-                </span>
-              )}
+  <span className="ml-2 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-600">
+    AUTO
+  </span>
+)}
               {/* 再圧縮 */}
               <button
                 onClick={() => onRecompress(job.id)}
