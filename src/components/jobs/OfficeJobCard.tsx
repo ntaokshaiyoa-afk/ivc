@@ -102,7 +102,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                   })
                 }
               />
-              
+
               <button
                 onClick={() => {
                   const next = { ...settings.overrides }
@@ -145,7 +145,6 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
               {img.afterUrl && (
                 <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
               )}
-
             </div>
           )
         })}
