@@ -37,9 +37,6 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
     })
   }
 
-  const compressedSize = job.outputs?.reduce((s, o) => s + o.size, 0) ?? 0
-
-  const saved = job.originalSize - compressedSize
   const totalImageOriginal =
     job.officeImages?.reduce((s, i) => s + i.originalSize, 0) ?? 0
 
@@ -68,7 +65,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
               <p className="text-xs mt-1 text-gray-500">
                 {formatSize(img.originalSize)} →{' '}
-                {formatSize(img.compressedSize ?? 0)}({formatSize(saved)})
+                {formatSize(img.compressedSize ?? 0)}(サイズ: {formatSize(img.compressedSize - img.originalSize)})
               </p>
               {img.skipped && (
                 <p className="text-xs text-yellow-500">
