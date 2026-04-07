@@ -3,7 +3,7 @@ import { optimise } from '@jsquash/oxipng'
 import type {
   OfficeImage,
   OfficeOverrides,
-  // OfficeImageOverride,
+  OfficeAppliedOverrides, // ★追加
 } from '@/domain/processor/types'
 
 function isImage(path: string) {
