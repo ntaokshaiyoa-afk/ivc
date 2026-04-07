@@ -58,10 +58,9 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
           const override = settings.overrides[img.path]
           const auto = settings.autoOverrides?.[img.path]
 
-          const current =
-            override?.manual
-              ? override
-              : auto ?? { format: 'jpeg', quality: 0.7 }
+          const current = override?.manual
+            ? override
+            : (auto ?? { format: 'jpeg', quality: 0.7 })
 
           const saved =
             (img.compressedSize ?? img.originalSize) - img.originalSize
