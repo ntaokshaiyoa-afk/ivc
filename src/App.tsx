@@ -120,26 +120,26 @@ export default function App() {
         const current = job.settings
 
         updateJob(jobId, {
-  outputs,
-  officeImages: res.officeImages,
+          outputs,
+          officeImages: res.officeImages,
 
-  settings: {
-    ...current,
-    overrides: current.overrides,
+          settings: {
+            ...current,
+            overrides: current.overrides,
 
-    autoOverrides: {
-      ...(current.autoOverrides ?? {}),
-      ...Object.fromEntries(
-        Object.entries(res.autoOverrides ?? {}).filter(
-          ([path]) => !current.autoOverrides?.[path],
-        ),
-      ),
-    },
-  },
+            autoOverrides: {
+              ...(current.autoOverrides ?? {}),
+              ...Object.fromEntries(
+                Object.entries(res.autoOverrides ?? {}).filter(
+                  ([path]) => !current.autoOverrides?.[path],
+                ),
+              ),
+            },
+          },
 
-  status: 'done',
-  progress: 100,
-})
+          status: 'done',
+          progress: 100,
+        })
       } catch (e) {
         const tAfter = latestTokenRef.current.get(jobId)
         if (token && tAfter && token !== tAfter) return
