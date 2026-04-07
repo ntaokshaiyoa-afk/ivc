@@ -1,9 +1,6 @@
 import JSZip from 'jszip'
 import { optimise } from '@jsquash/oxipng'
-import type {
-  OfficeImage,
-  OfficeOverrides,
-} from '@/domain/processor/types'
+import type { OfficeImage, OfficeOverrides } from '@/domain/processor/types'
 
 function isImage(path: string) {
   return /\.(png|jpe?g)$/i.test(path)
