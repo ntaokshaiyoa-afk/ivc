@@ -90,10 +90,7 @@ const current = override?.manual ? override : auto
     })
   }
 />
-                <option value="jpeg">JPEG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WebP</option>
-              </select>
+              
 
               {/* 品質 */}
               <input
