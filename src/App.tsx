@@ -115,7 +115,7 @@ export default function App() {
           url: URL.createObjectURL(o.blob),
         }))
 
-        const currentOverrides = job.settings.overrides ?? {}
+        // const currentOverrides = job.settings.overrides ?? {}
 
         const current = job.settings
 
