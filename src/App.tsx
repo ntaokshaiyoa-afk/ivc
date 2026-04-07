@@ -118,11 +118,11 @@ export default function App() {
         const currentOverrides = job.settings.overrides ?? {}
 
         const nextOverrides = {
-  ...Object.fromEntries(
-    Object.entries(currentOverrides).filter(([, v]) => v.manual),
-  ),
-  ...(res.appliedOverrides ?? {}), // ★ここ修正
-}
+          ...Object.fromEntries(
+            Object.entries(currentOverrides).filter(([, v]) => v.manual),
+          ),
+          ...(res.appliedOverrides ?? {}), // ★ここ修正
+        }
 
         updateJob(jobId, {
           outputs,
