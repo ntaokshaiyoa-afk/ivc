@@ -120,29 +120,26 @@ export default function App() {
         const current = job.settings
 
         updateJob(jobId, {
-          outputs,
-          officeImages: res.officeImages,
+  outputs,
+  officeImages: res.officeImages,
 
-          settings: {
-            ...current,
+  settings: {
+    ...current,
+    overrides: current.overrides,
 
-            // manualはそのまま
-            overrides: current.overrides,
+    autoOverrides: {
+      ...(current.autoOverrides ?? {}),
+      ...Object.fromEntries(
+        Object.entries(res.autoOverrides ?? {}).filter(
+          ([path]) => !current.autoOverrides?.[path],
+        ),
+      ),
+    },
+  },
 
-            // ★Autoは初回のみ保存（上書き禁止）
-            autoOverrides: {
-              ...current.autoOverrides,
-              ...Object.fromEntries(
-                Object.entries(res.autoOverrides ?? {}).filter(
-                  ([path]) => !current.autoOverrides?.[path],
-                ),
-              ),
-            },
-          },
-
-          status: 'done',
-          progress: 100,
-        })
+  status: 'done',
+  progress: 100,
+})
       } catch (e) {
         const tAfter = latestTokenRef.current.get(jobId)
         if (token && tAfter && token !== tAfter) return
