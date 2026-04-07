@@ -62,21 +62,15 @@ export async function compressOffice(
   file: File,
   onProgress?: (p: number) => void,
   overrides: OfficeOverrides = {},
+  autoOverrides: OfficeOverrides = {}, // ★追加
 ) {
   const zip = await JSZip.loadAsync(file)
   const officeImages: OfficeImage[] = []
-  const appliedOverrides: OfficeAppliedOverrides = {} // ★追加
+  const nextAutoOverrides: OfficeOverrides = { ...autoOverrides }
 
   const entries = Object.entries(zip.files).filter(
     ([path]) => path.includes('/media/') && isImage(path),
   )
-
-  if (entries.length === 0) {
-    return {
-      outBlob: file,
-      officeImages: [],
-    }
-  }
 
   let done = 0
 
@@ -86,68 +80,63 @@ export async function compressOffice(
     const isPng = path.toLowerCase().endsWith('.png')
     const alpha = isPng ? await hasAlpha(blob) : false
 
-    let finalBlob: Blob
-    let format: 'jpeg' | 'png'
-    const quality = 0.7
-    const override = overrides[path]
+    const manual = overrides[path]
+    const auto = autoOverrides[path]
 
-    // ===== manual指定がある場合は最優先 =====
-    if (override?.manual) {
-      const format = override.format
-      const quality = override.quality ?? 0.7
+    let format: 'jpeg' | 'png'
+    let quality = 0.7
+    let finalBlob: Blob
+
+    // ===== manual優先 =====
+    if (manual?.manual) {
+      format = manual.format
+      quality = manual.quality ?? 0.7
 
       finalBlob = await compressImage(blob, format, quality)
 
-      // サイズ悪化チェック
       if (finalBlob.size >= blob.size) {
         finalBlob = blob
-      }
-
-      appliedOverrides[path] = {
-        format,
-        quality,
+        format = isPng ? 'png' : 'jpeg'
       }
     } else {
-      // ===== ケース1：αあり → PNG固定 =====
-      if (alpha) {
-        finalBlob = await compressImage(blob, 'png', 1)
-        format = 'png'
-      } else if (override?.format) {
-        // ★ユーザー指定優先
-        finalBlob = await compressImage(
-          blob,
-          override.format,
-          override.quality ?? 0.7,
-        )
-        format = override.format
+      // ===== Auto処理 =====
+
+      // 既にAuto結果があればそれを使う
+      if (auto) {
+        format = auto.format
+        quality = auto.quality
+        finalBlob = await compressImage(blob, format, quality)
       } else {
-        // ===== ケース2：JPEG vs PNG 比較 =====
-        const jpegBlob = await compressImage(blob, 'jpeg', quality)
-        const pngBlob = await compressImage(blob, 'png', 1)
-
-        // ★小さい方を採用
-        if (jpegBlob.size <= pngBlob.size) {
-          finalBlob = jpegBlob
-          format = 'jpeg'
-        } else {
-          finalBlob = pngBlob
+        // 初回のみ計算
+        if (alpha) {
           format = 'png'
+          quality = 1
+          finalBlob = await compressImage(blob, 'png', 1)
+        } else {
+          const jpegBlob = await compressImage(blob, 'jpeg', 0.7)
+          const pngBlob = await compressImage(blob, 'png', 1)
+
+          if (jpegBlob.size <= pngBlob.size) {
+            finalBlob = jpegBlob
+            format = 'jpeg'
+            quality = 0.7
+          } else {
+            finalBlob = pngBlob
+            format = 'png'
+            quality = 1
+          }
+
+          if (finalBlob.size >= blob.size) {
+            finalBlob = blob
+            format = isPng ? 'png' : 'jpeg'
+          }
         }
 
-        // ★元より大きいなら元を採用
-        if (finalBlob.size >= blob.size) {
-          finalBlob = blob
-          // TODO: 元のフォーマットをformatに代入
-        }
-
-        appliedOverrides[path] = {
-          format,
-          quality,
-        }
+        // ★Auto結果保存（初回のみ）
+        nextAutoOverrides[path] = { format, quality }
       }
     }
 
-    // ★ZIPに反映
     zip.file(path, finalBlob)
 
     officeImages.push({
@@ -156,10 +145,8 @@ export async function compressOffice(
       afterUrl: URL.createObjectURL(finalBlob),
       originalSize: blob.size,
       compressedSize: finalBlob.size,
-
       format,
       quality,
-
       skipped: finalBlob === blob,
     })
 
@@ -169,7 +156,9 @@ export async function compressOffice(
 
   const outBlob = await zip.generateAsync({ type: 'blob' })
 
-  console.log(overrides)
-
-  return { outBlob, officeImages, appliedOverrides }
+  return {
+    outBlob,
+    officeImages,
+    autoOverrides: nextAutoOverrides, // ★返す
+  }
 }
