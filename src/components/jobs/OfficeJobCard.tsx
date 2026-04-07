@@ -59,7 +59,7 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
             quality: 0.7,
           }
 
-          const saved = img.compressedSize - img.originalSize
+          const saved = (img.compressedSize ?? img.originalSize)  - img.originalSize
 
           return (
             <div key={img.path}>
