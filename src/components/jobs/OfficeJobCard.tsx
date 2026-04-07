@@ -54,15 +54,14 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
       <div className="space-y-6">
         {job.officeImages?.map((img) => {
+          // ✅ ここで定義（外に出さない）
           const override = settings.overrides[img.path]
           const auto = settings.autoOverrides?.[img.path]
 
-          const current = override?.manual
-            ? override
-            : (auto ?? {
-                format: 'jpeg',
-                quality: 0.7,
-              })
+          const current =
+            override?.manual
+              ? override
+              : auto ?? { format: 'jpeg', quality: 0.7 }
 
           const saved =
             (img.compressedSize ?? img.originalSize) - img.originalSize
@@ -76,12 +75,14 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 {formatSize(img.compressedSize ?? 0)}(サイズ:{' '}
                 {formatSize(saved)})
               </p>
+
               {img.skipped && (
                 <p className="text-xs text-yellow-500">
                   ※ 圧縮するとサイズが増えるためスキップ
                 </p>
               )}
-              {/* フォーマット選択 */}
+
+              {/* フォーマット */}
               <select
                 value={current.format}
                 onChange={(e) =>
@@ -89,7 +90,11 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                     format: e.target.value as OfficeImageFormat,
                   })
                 }
-              />
+              >
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+              </select>
 
               {/* 品質 */}
               <input
@@ -105,43 +110,33 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
                 }
               />
 
+              {/* AUTOに戻す */}
               <button
                 onClick={() => {
                   const next = { ...settings.overrides }
                   delete next[img.path]
 
                   onChangeSettings(job.id, { overrides: next })
-
-                  // ★Auto設定で再圧縮
                   onRecompress(job.id)
                 }}
-                className="ml-2 px-2 py-1 text-xs rounded 
-             bg-gray-200 hover:bg-gray-300 
-             text-gray-800 
-             dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+                className="ml-2 px-2 py-1 text-xs rounded bg-gray-200 hover:bg-gray-300"
               >
                 AUTOに戻す
               </button>
+
               {!override?.manual && (
                 <span className="ml-2 text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-600">
                   AUTO
                 </span>
               )}
+
               {/* 再圧縮 */}
               <button
                 onClick={() => onRecompress(job.id)}
                 disabled={job.status === 'processing'}
-                className="ml-2 px-3 py-1 rounded text-white flex items-center gap-2
-    bg-blue-500 disabled:bg-gray-400"
+                className="ml-2 px-3 py-1 rounded text-white bg-blue-500 disabled:bg-gray-400"
               >
-                {job.status === 'processing' ? (
-                  <>
-                    <ProgressDonut progress={job.progress} />
-                    処理中
-                  </>
-                ) : (
-                  '再圧縮'
-                )}
+                再圧縮
               </button>
 
               {img.afterUrl && (
@@ -154,7 +149,6 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
     </div>
   )
 }
-
 function ProgressDonut({ progress }: { progress: number }) {
   const radius = 10
   const stroke = 3
