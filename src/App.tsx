@@ -117,16 +117,7 @@ export default function App() {
 
         const currentOverrides = job.settings.overrides ?? {}
 
-        const nextOverrides = {
-          ...Object.fromEntries(
-            Object.entries(currentOverrides).filter(([, v]) => v.manual),
-          ),
-          ...(res.appliedOverrides ?? {}), // ★ここ修正
-        }
-
-        const res = await processor.process(...)
-
-const current = job.settings
+        const current = job.settings
 
 updateJob(jobId, {
   outputs,
@@ -138,12 +129,12 @@ updateJob(jobId, {
     // manualはそのまま
     overrides: current.overrides,
 
-    // ★Autoは初回のみ or 未設定のみ更新
+    // ★Autoは初回のみ保存（上書き禁止）
     autoOverrides: {
       ...current.autoOverrides,
       ...Object.fromEntries(
         Object.entries(res.autoOverrides ?? {}).filter(
-          ([path]) => !current.autoOverrides?.[path], // ★上書き禁止
+          ([path]) => !current.autoOverrides?.[path],
         ),
       ),
     },
