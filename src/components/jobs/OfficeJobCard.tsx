@@ -131,20 +131,20 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
 
               {/* 再圧縮 */}
               <button
-  onClick={() => onRecompress(job.id)}
-  disabled={job.status === 'processing'}
-  className="ml-2 px-3 py-1 rounded text-white flex items-center gap-2
+                onClick={() => onRecompress(job.id)}
+                disabled={job.status === 'processing'}
+                className="ml-2 px-3 py-1 rounded text-white flex items-center gap-2
   bg-blue-500 disabled:bg-gray-400"
->
-  {job.status === 'processing' ? (
-    <>
-      <ProgressDonut progress={job.progress} />
-      処理中
-    </>
-  ) : (
-    '再圧縮'
-  )}
-</button>
+              >
+                {job.status === 'processing' ? (
+                  <>
+                    <ProgressDonut progress={job.progress} />
+                    処理中
+                  </>
+                ) : (
+                  '再圧縮'
+                )}
+              </button>
 
               {img.afterUrl && (
                 <ImageCompare before={img.beforeUrl} after={img.afterUrl} />
