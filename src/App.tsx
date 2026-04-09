@@ -270,19 +270,19 @@ export default function App() {
   const totalSaved = totalOriginal - totalCompressed
 
   const downloadOffice = (jobId: string) => {
-  const job = jobs.find((j) => j.id === jobId)
-  if (!job?.outputs?.length) return
+    const job = jobs.find((j) => j.id === jobId)
+    if (!job?.outputs?.length) return
 
-  const out = job.outputs[0]
+    const out = job.outputs[0]
 
-  const url = URL.createObjectURL(out.blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = out.name
-  a.click()
+    const url = URL.createObjectURL(out.blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = out.name
+    a.click()
 
-  URL.revokeObjectURL(url)
-}
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
@@ -363,14 +363,14 @@ export default function App() {
         <div className="space-y-8">
           {jobs.map((job) => (
             <JobCard
-  key={job.id}
-  job={job}
-  onChangeSettings={onChangeSettings}
-  onRecompress={onRecompress}
-  onRecompressLatest={onRecompressLatest}
-  onOpenImageModal={openModal}
-  onDownloadOffice={downloadOffice}
-/>
+              key={job.id}
+              job={job}
+              onChangeSettings={onChangeSettings}
+              onRecompress={onRecompress}
+              onRecompressLatest={onRecompressLatest}
+              onOpenImageModal={openModal}
+              onDownloadOffice={downloadOffice}
+            />
           ))}
         </div>
       </div>
