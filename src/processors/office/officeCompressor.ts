@@ -29,7 +29,7 @@ async function updateXmlReferences(
   newPath: string,
   format: string,
 ) {
-    const oldFile = oldPath.split('/').pop()!
+  const oldFile = oldPath.split('/').pop()!
   const newFile = newPath.split('/').pop()!
 
   const xmlFiles = Object.keys(zip.files).filter(
@@ -43,10 +43,7 @@ async function updateXmlReferences(
     let xml = await file.async('text')
 
     // ① media/xxx.png → media/xxx.jpg
-    xml = xml.replaceAll(
-      `media/${oldFile}`,
-      `media/${newFile}`,
-    )
+    xml = xml.replaceAll(`media/${oldFile}`, `media/${newFile}`)
 
     // ② ../media/xxx.png など相対パス
     xml = xml.replaceAll(oldFile, newFile)
