@@ -11,7 +11,7 @@ type Props = {
   job: Job
   onChangeSettings: (jobId: string, patch: Record<string, unknown>) => void
   onRecompress: (jobId: string) => void
-  onDownloadOffice: (jobId: string) => void
+  onDownloadOffice?: (jobId: string) => void
 }
 
 export function OfficeJobCard({
@@ -67,7 +67,7 @@ export function OfficeJobCard({
         </button>
 
         <button
-          onClick={() => onDownloadOffice(job.id)}
+          onClick={() => onDownloadOffice?.(job.id)}
           disabled={!job.outputs?.length}
           className="px-3 py-1 rounded bg-green-600 text-white disabled:opacity-40"
         >
