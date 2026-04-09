@@ -64,6 +64,21 @@ export default function App() {
     setJobs((prev) => [...prev, ...next])
   }
 
+  const onDownloadOffice = useCallback((jobId: string) => {
+  const job = jobs.find((j) => j.id === jobId)
+  if (!job?.outputs?.length) return
+
+  const out = job.outputs[0]
+  const url = URL.createObjectURL(out.blob)
+
+  const a = document.createElement('a')
+  a.href = url
+  a.download = out.name
+  a.click()
+
+  URL.revokeObjectURL(url)
+}, [jobs])
+
   /**
    * 最新タスクのみ実行 :
    * jobIdごとに token を持ち、enqueue される度に token を更新。
@@ -375,7 +390,7 @@ export default function App() {
               onRecompress={onRecompress}
               onRecompressLatest={onRecompressLatest}
               onOpenImageModal={openModal}
-              onDownloadOffice={downloadOffice}
+              onDownloadOffice={onDownloadOffice}
             />
           ))}
         </div>
