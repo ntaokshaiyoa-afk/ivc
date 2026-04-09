@@ -48,7 +48,7 @@ async function updateXmlReferences(
     // ② ../media/xxx.png など相対パス
     xml = xml.replaceAll(oldFile, newFile)
 
-    zip.file(relPath, xml)
+    zip.file(xmlPath, xml)
   }
 
   // ContentTypes更新
