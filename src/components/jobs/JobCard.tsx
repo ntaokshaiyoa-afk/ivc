@@ -9,6 +9,7 @@ type Props = {
   onRecompress: (jobId: string) => void
   onRecompressLatest: (jobId: string) => void
   onOpenImageModal: (before: string, after: string) => void
+  onDownloadOffice?: (jobId: string) => void
 }
 
 export function JobCard(props: Props) {
@@ -41,6 +42,7 @@ export function JobCard(props: Props) {
         job={job}
         onChangeSettings={props.onChangeSettings}
         onRecompress={props.onRecompress}
+        onClick={() => onDownloadOffice?.(job.id)}
       />
     )
   }
