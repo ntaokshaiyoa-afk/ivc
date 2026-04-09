@@ -215,13 +215,13 @@ export async function compressOffice(
   }
 
   const outBlob = await zip.generateAsync({
-  type: 'blob',
-  compression: 'DEFLATE',
-  compressionOptions: {
-    level: 9, // ★最大圧縮
-  },
-})
-  
+    type: 'blob',
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 9, // ★最大圧縮
+    },
+  })
+
   return {
     outBlob,
     officeImages,
