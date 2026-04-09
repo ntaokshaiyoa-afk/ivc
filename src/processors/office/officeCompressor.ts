@@ -51,22 +51,17 @@ async function updateXmlReferences(
 
   let xml = await ct.async('text')
 
-  xml = xml.replaceAll(
-    oldPath.split('/').pop()!,
-    newPath.split('/').pop()!,
-  )
+  xml = xml.replaceAll(oldPath.split('/').pop()!, newPath.split('/').pop()!)
 
   if (format === 'jpeg') {
     if (!xml.includes('image/jpeg')) {
-      xml +=
-        '<Default Extension="jpeg" ContentType="image/jpeg"/>'
+      xml += '<Default Extension="jpeg" ContentType="image/jpeg"/>'
     }
   }
 
   if (format === 'png') {
     if (!xml.includes('image/png')) {
-      xml +=
-        '<Default Extension="png" ContentType="image/png"/>'
+      xml += '<Default Extension="png" ContentType="image/png"/>'
     }
   }
 
@@ -189,14 +184,14 @@ export async function compressOffice(
 
     const newPath = replaceExt(path, format)
 
-if (newPath !== path) {
-  zip.remove(path)
-  zip.file(newPath, finalBlob)
+    if (newPath !== path) {
+      zip.remove(path)
+      zip.file(newPath, finalBlob)
 
-  await updateXmlReferences(zip, path, newPath, format)
-} else {
-  zip.file(path, finalBlob)
-}
+      await updateXmlReferences(zip, path, newPath, format)
+    } else {
+      zip.file(path, finalBlob)
+    }
 
     officeImages.push({
       path,
