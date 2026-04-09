@@ -29,9 +29,7 @@ async function updateXmlReferences(
   newPath: string,
   format: string,
 ) {
-    const relsFiles = Object.keys(zip.files).filter((p) =>
-    p.endsWith('.rels'),
-  )
+  const relsFiles = Object.keys(zip.files).filter((p) => p.endsWith('.rels'))
 
   const oldFile = oldPath.split('/').pop()
   const newFile = newPath.split('/').pop()
