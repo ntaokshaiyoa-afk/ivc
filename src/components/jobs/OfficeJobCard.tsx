@@ -59,21 +59,21 @@ export function OfficeJobCard({
       </div>
 
       <div className="flex gap-3 mb-4">
-  <button
-    onClick={() => onRecompress(job.id)}
-    className="px-3 py-1 rounded bg-blue-500 text-white"
-  >
-    再圧縮
-  </button>
+        <button
+          onClick={() => onRecompress(job.id)}
+          className="px-3 py-1 rounded bg-blue-500 text-white"
+        >
+          再圧縮
+        </button>
 
-  <button
-    onClick={() => onDownloadOffice(job.id)}
-    disabled={!job.outputs?.length}
-    className="px-3 py-1 rounded bg-green-600 text-white disabled:opacity-40"
-  >
-    圧縮OfficeをDL
-  </button>
-</div>
+        <button
+          onClick={() => onDownloadOffice(job.id)}
+          disabled={!job.outputs?.length}
+          className="px-3 py-1 rounded bg-green-600 text-white disabled:opacity-40"
+        >
+          圧縮OfficeをDL
+        </button>
+      </div>
 
       <div className="space-y-6">
         {job.officeImages?.map((img) => {
