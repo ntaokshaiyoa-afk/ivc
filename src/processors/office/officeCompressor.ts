@@ -19,6 +19,60 @@ async function hasAlpha(blob: Blob) {
   return false
 }
 
+function replaceExt(path: string, ext: string) {
+  return path.replace(/\.(png|jpe?g)$/i, '.' + ext)
+}
+
+async function updateXmlReferences(
+  zip: JSZip,
+  oldPath: string,
+  newPath: string,
+  format: string,
+) {
+  const files = Object.keys(zip.files)
+
+  for (const p of files) {
+    if (!p.endsWith('.xml') && !p.endsWith('.rels')) continue
+
+    const f = zip.file(p)
+    if (!f) continue
+
+    let text = await f.async('text')
+
+    if (text.includes(oldPath)) {
+      text = text.replaceAll(oldPath, newPath)
+      zip.file(p, text)
+    }
+  }
+
+  // ContentTypes更新
+  const ct = zip.file('[Content_Types].xml')
+  if (!ct) return
+
+  let xml = await ct.async('text')
+
+  xml = xml.replaceAll(
+    oldPath.split('/').pop()!,
+    newPath.split('/').pop()!,
+  )
+
+  if (format === 'jpeg') {
+    if (!xml.includes('image/jpeg')) {
+      xml +=
+        '<Default Extension="jpeg" ContentType="image/jpeg"/>'
+    }
+  }
+
+  if (format === 'png') {
+    if (!xml.includes('image/png')) {
+      xml +=
+        '<Default Extension="png" ContentType="image/png"/>'
+    }
+  }
+
+  zip.file('[Content_Types].xml', xml)
+}
+
 async function compressImage(
   blob: Blob,
   format: 'jpeg' | 'png' | 'webp',
@@ -133,7 +187,16 @@ export async function compressOffice(
       }
     }
 
-    zip.file(path, finalBlob)
+    const newPath = replaceExt(path, format)
+
+if (newPath !== path) {
+  zip.remove(path)
+  zip.file(newPath, finalBlob)
+
+  await updateXmlReferences(zip, path, newPath, format)
+} else {
+  zip.file(path, finalBlob)
+}
 
     officeImages.push({
       path,
