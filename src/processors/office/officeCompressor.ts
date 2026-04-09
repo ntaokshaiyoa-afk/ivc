@@ -29,21 +29,27 @@ async function updateXmlReferences(
   newPath: string,
   format: string,
 ) {
-  const files = Object.keys(zip.files)
+    const relsFiles = Object.keys(zip.files).filter((p) =>
+    p.endsWith('.rels'),
+  )
 
-  for (const p of files) {
-    if (!p.endsWith('.xml') && !p.endsWith('.rels')) continue
+  const oldFile = oldPath.split('/').pop()
+  const newFile = newPath.split('/').pop()
 
-    const f = zip.file(p)
-    if (!f) continue
+  for (const relPath of relsFiles) {
+    const file = zip.file(relPath)
+    if (!file) continue
 
-    let text = await f.async('text')
+    let xml = await file.async('text')
 
-    if (text.includes(oldPath)) {
-      text = text.replaceAll(oldPath, newPath)
-      zip.file(p, text)
-    }
-  }
+    // Targetのみ置換
+    xml = xml.replaceAll(
+      `Target="media/${oldFile}"`,
+      `Target="media/${newFile}"`,
+    )
+
+    zip.file(relPath, xml)
+  
 
   // ContentTypes更新
   const ct = zip.file('[Content_Types].xml')
