@@ -11,9 +11,15 @@ type Props = {
   job: Job
   onChangeSettings: (jobId: string, patch: Record<string, unknown>) => void
   onRecompress: (jobId: string) => void
+  onDownloadOffice: (jobId: string) => void
 }
 
-export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
+export function OfficeJobCard({
+  job,
+  onChangeSettings,
+  onRecompress,
+  onDownloadOffice,
+}: Props) {
   const settings = job.settings as OfficeSettings
 
   const updateOverride = (
@@ -51,6 +57,23 @@ export function OfficeJobCard({ job, onChangeSettings, onRecompress }: Props) {
         画像合計: {formatSize(totalImageOriginal)} →{' '}
         {formatSize(totalImageCompressed)}
       </div>
+
+      <div className="flex gap-3 mb-4">
+  <button
+    onClick={() => onRecompress(job.id)}
+    className="px-3 py-1 rounded bg-blue-500 text-white"
+  >
+    再圧縮
+  </button>
+
+  <button
+    onClick={() => onDownloadOffice(job.id)}
+    disabled={!job.outputs?.length}
+    className="px-3 py-1 rounded bg-green-600 text-white disabled:opacity-40"
+  >
+    圧縮OfficeをDL
+  </button>
+</div>
 
       <div className="space-y-6">
         {job.officeImages?.map((img) => {
