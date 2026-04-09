@@ -49,7 +49,7 @@ async function updateXmlReferences(
     )
 
     zip.file(relPath, xml)
-  
+  }
 
   // ContentTypes更新
   const ct = zip.file('[Content_Types].xml')
