@@ -214,8 +214,14 @@ export async function compressOffice(
     onProgress?.((done / entries.length) * 100)
   }
 
-  const outBlob = await zip.generateAsync({ type: 'blob' })
-
+  const outBlob = await zip.generateAsync({
+  type: 'blob',
+  compression: 'DEFLATE',
+  compressionOptions: {
+    level: 9, // ★最大圧縮
+  },
+})
+  
   return {
     outBlob,
     officeImages,
